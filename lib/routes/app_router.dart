@@ -1,0 +1,58 @@
+import 'package:go_router/go_router.dart';
+import '../features/landing/presentation/pages/home_page.dart';
+import '../features/about/presentation/pages/about_page.dart';
+import '../features/contact/presentation/pages/contact_page.dart';
+import '../features/auth/presentation/pages/student_login_page.dart';
+import '../features/auth/presentation/pages/recruiter_login_page.dart';
+import '../features/auth/presentation/pages/signup_page.dart';
+import '../features/student/dashboard/presentation/pages/student_dashboard.dart';
+import '../features/student/profile/presentation/pages/student_profile_page.dart';
+import '../features/student/career_path/presentation/pages/career_path_planner_page.dart';
+import '../features/student/internships/presentation/pages/student_internships_page.dart';
+import '../features/student/internships/presentation/pages/internship_details_page.dart';
+import '../features/student/applications/presentation/pages/student_applications_page.dart';
+import '../features/recruiter/dashboard/presentation/pages/recruiter_dashboard.dart';
+import '../features/recruiter/internships/presentation/pages/my_internships_page.dart';
+import '../features/recruiter/internships/presentation/pages/post_internship_page.dart';
+import '../features/recruiter/applications/presentation/pages/all_applications_page.dart';
+import '../features/recruiter/profile/presentation/pages/recruiter_profile_page.dart';
+import '../features/notifications/presentation/pages/notifications_page.dart';
+import '../features/legal/presentation/pages/privacy_policy_page.dart';
+import '../features/legal/presentation/pages/terms_of_service_page.dart';
+import '../features/legal/presentation/pages/cookie_policy_page.dart';
+
+class AppRouter {
+  static final router = GoRouter(
+    initialLocation: '/',
+    routes: [
+      GoRoute(path: '/', builder: (context, state) => const HomePage()),
+      GoRoute(path: '/home', builder: (context, state) => const HomePage()),
+      GoRoute(path: '/about', builder: (context, state) => const AboutPage()),
+      GoRoute(path: '/contact', builder: (context, state) => const ContactPage()),
+      GoRoute(path: '/student-login', builder: (context, state) => const StudentLoginPage()),
+      GoRoute(path: '/recruiter-login', builder: (context, state) => const RecruiterLoginPage()),
+      GoRoute(path: '/signup', builder: (context, state) => const SignupPage()),
+      GoRoute(path: '/notifications', builder: (context, state) => const NotificationsPage()),
+      
+      // Student Routes
+      GoRoute(path: '/student/dashboard', builder: (context, state) => const StudentDashboard()),
+      GoRoute(path: '/student/profile', builder: (context, state) => const StudentProfilePage()),
+      GoRoute(path: '/student/career-path', builder: (context, state) => const CareerPathPlannerPage()),
+      GoRoute(path: '/student/internships', builder: (context, state) => const StudentInternshipsPage()),
+      GoRoute(path: '/student/internship-details', builder: (context, state) => const InternshipDetailsPage()),
+      GoRoute(path: '/student/applications', builder: (context, state) => const StudentApplicationsPage()),
+      
+      // Recruiter Routes
+      GoRoute(path: '/recruiter/dashboard', builder: (context, state) => const RecruiterDashboard()),
+      GoRoute(path: '/recruiter/profile', builder: (context, state) => const RecruiterProfilePage()),
+      GoRoute(path: '/recruiter/my-internships', builder: (context, state) => const MyInternshipsPage()),
+      GoRoute(path: '/recruiter/post-internship', builder: (context, state) => const PostInternshipPage()),
+      GoRoute(path: '/recruiter/applications', builder: (context, state) => const AllApplicationsPage()),
+      
+      // Legal Routes
+      GoRoute(path: '/privacy', builder: (context, state) => const PrivacyPolicyPage()),
+      GoRoute(path: '/terms', builder: (context, state) => const TermsOfServicePage()),
+      GoRoute(path: '/cookies', builder: (context, state) => const CookiePolicyPage()),
+    ],
+  );
+}
