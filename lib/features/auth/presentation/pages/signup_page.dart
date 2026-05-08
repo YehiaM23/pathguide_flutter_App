@@ -63,6 +63,30 @@ class _SignupPageState extends State<SignupPage> {
 
   final List<String> _selectedInterests = [];
 
+  final List<String> _egyptianUniversities = [
+    'Cairo University','Nile University', 'Ain Shams University', 'Alexandria University', 
+    'Mansoura University', 'Helwan University', 'Assiut University', 
+    'Tanta University', 'Zagazig University', 'Suez Canal University', 
+    'Menoufia University', 'Benha University', 'Minia University', 
+    'Fayoum University', 'Beni-Suef University', 'Sohag University', 
+    'South Valley University', 'Aswan University', 'Port Said University', 
+    'Damietta University', 'Suez University', 'Damanhour University', 
+    'Kafr El-Sheikh University', 'Matrouh University', 'New Valley University', 
+    'Al-Azhar University','American University in Cairo (AUC)', 
+    'German University in Cairo (GUC)', 'British University in Egypt (BUE)', 
+    'Arab Academy for Science, Technology and Maritime Transport (AASTMT)',
+    'Misr International University (MIU)', 'Future University in Egypt (FUE)',
+    'Misr University for Science and Technology (MUST)', 'Modern Sciences and Arts University (MSA)',
+    'October 6 University', 'Galala University', 'AlAlamein International University',
+    'New Mansoura University', 'King Salman International University'
+  ];
+
+  final List<String> _csMajors = [
+    'Computer Science', 'AI', 'Biotechnology', 
+    'Software Engineering', 'Information Technology', 'Information Systems', 
+    'Cybersecurity', 'Data Science', 'Computer Engineering'
+  ];
+
   @override
   Widget build(BuildContext context) {
     return PageScaffold(
@@ -149,7 +173,7 @@ class _SignupPageState extends State<SignupPage> {
             const SizedBox(height: 16),
             AppTextField(
               label: 'Full Name',
-              hint: 'e.g. John Doe',
+              hint: 'your name',
               controller: _nameController,
               prefixIcon: Icons.person_outline,
               validator: (v) => v!.isEmpty ? 'Please enter your name' : null,
@@ -179,9 +203,9 @@ class _SignupPageState extends State<SignupPage> {
                 style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkNavy, fontSize: 16),
               ),
               const SizedBox(height: 16),
-              _buildDropdown('University', 'Select University', ['Nile University', 'Cairo University', 'Ain Shams University'], (v) => setState(() => _selectedUniversity = v)),
+              _buildDropdown('University', 'Select University', _egyptianUniversities, (v) => setState(() => _selectedUniversity = v)),
               const SizedBox(height: 20),
-              _buildDropdown('Major', 'Select Major', ['Computer Science', 'Software Engineering', 'Information Technology'], (v) => setState(() => _selectedMajor = v)),
+              _buildDropdown('Major', 'Select Major', _csMajors, (v) => setState(() => _selectedMajor = v)),
               const SizedBox(height: 20),
               AppTextField(
                 label: 'Graduation Year',
@@ -268,11 +292,19 @@ class _SignupPageState extends State<SignupPage> {
         Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.darkNavy)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
+          isExpanded: true,
           decoration: InputDecoration(
             hintText: hint,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
-          items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+          items: items.map((e) => DropdownMenuItem(
+            value: e, 
+            child: Text(
+              e,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            )
+          )).toList(),
           onChanged: onChanged,
         ),
       ],
