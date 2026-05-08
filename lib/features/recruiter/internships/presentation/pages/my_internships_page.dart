@@ -1,52 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pathguide_app/core/theme/app_colors.dart';
 import 'package:pathguide_app/core/widgets/reusable_widgets.dart';
 import 'package:pathguide_app/core/data/models.dart';
 import 'package:pathguide_app/features/recruiter/dashboard/presentation/widgets/recruiter_dashboard_scaffold.dart';
+import 'package:pathguide_app/features/recruiter/internships/presentation/bloc/internship_bloc.dart';
 
-class MyInternshipsPage extends StatelessWidget {
+class MyInternshipsPage extends StatefulWidget {
   const MyInternshipsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<InternshipModel> myInternships = [
-      const InternshipModel(
-        id: '1',
-        title: 'Mobile Developer',
-        company: 'Vois',
-        description: 'Mobile development internship',
-        location: 'Smart Village',
-        duration: '1 month',
-        stipend: '5000 EGP',
-        startDate: '05/01/2026',
-        deadline: '30/01/2026',
-        requiredSkill: 'Figma',
-      ),
-      const InternshipModel(
-        id: '2',
-        title: 'Embedded Systems',
-        company: 'Vois',
-        description: 'Embedded Systems internship',
-        location: 'Cairo',
-        duration: '3 months',
-        stipend: '3000 EGP',
-        startDate: '06/01/2026',
-        deadline: '07/02/2026',
-        requiredSkill: 'CSS',
-      ),
-    ];
+  State<MyInternshipsPage> createState() => _MyInternshipsPageState();
+}
 
+class _MyInternshipsPageState extends State<MyInternshipsPage> {
+  @override
+  void initState() {
+    super.initState();
+    // نطلب البيانات مرة واحدة فقط عند تشغيل الصفحة لأول مرة
+    context.read<InternshipBloc>().add(LoadMyInternships());
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return RecruiterDashboardScaffold(
       title: 'My Internships',
       body: Column(
         children: [
+          Container(
+            alignment: Alignment.centerLeft,
+            child: const SectionHeader(
+              title: 'Posted Opportunities',
+              subtitle: 'Track and manage your internship listings.',
+            ),
+          ),
+          const SizedBox(height: 16),
           Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: myInternships.length,
-              itemBuilder: (context, index) {
-                final internship = myInternships[index];
-                return _buildInternshipCard(internship);
+            child: BlocBuilder<InternshipBloc, InternshipState>(
+              builder: (context, state) {
+                if (state is InternshipLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is InternshipLoaded) {
+                  if (state.myInternships.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.work_off_outlined, size: 64, color: AppColors.mutedText.withValues(alpha: 0.5)),
+                          const SizedBox(height: 16),
+                          const Text('No internships posted yet.', style: TextStyle(color: AppColors.mutedText)),
+                        ],
+                      ),
+                    );
+                  }
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemCount: state.myInternships.length,
+                    itemBuilder: (context, index) {
+                      final internship = state.myInternships[index];
+                      return _buildInternshipCard(context, internship);
+                    },
+                  );
+                } else if (state is InternshipError) {
+                  return Center(child: Text(state.message));
+                }
+                return const Center(child: Text('Something went wrong.'));
               },
             ),
           ),
@@ -55,7 +74,7 @@ class MyInternshipsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildInternshipCard(InternshipModel internship) {
+  Widget _buildInternshipCard(BuildContext context, InternshipModel internship) {
     return AppCard(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -64,19 +83,34 @@ class MyInternshipsPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                internship.title,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.darkNavy),
+              Expanded(
+                child: Text(
+                  internship.title,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.darkNavy),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              const StatusBadge(label: 'Active', color: AppColors.successGreen),
+              StatusBadge(
+                label: internship.isActive ? 'Active' : 'Closed', 
+                color: internship.isActive ? AppColors.successGreen : AppColors.mutedText
+              ),
             ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            internship.company,
+            style: const TextStyle(color: AppColors.primaryBlue, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
           Row(
             children: [
+              const Icon(Icons.location_on_outlined, size: 16, color: AppColors.mutedText),
+              const SizedBox(width: 4),
+              Text(internship.location, style: const TextStyle(color: AppColors.mutedText, fontSize: 13)),
+              const SizedBox(width: 16),
               const Icon(Icons.people_outline, size: 16, color: AppColors.mutedText),
-              const SizedBox(width: 8),
-              const Text('12 Applicants', style: TextStyle(color: AppColors.mutedText)),
+              const SizedBox(width: 4),
+              const Text('0 Applicants', style: TextStyle(color: AppColors.mutedText, fontSize: 13)),
             ],
           ),
           const SizedBox(height: 20),
@@ -88,6 +122,7 @@ class MyInternshipsPage extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primaryBlue,
                     side: const BorderSide(color: AppColors.primaryBlue),
+                    minimumSize: const Size(0, 44),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text('Edit'),
@@ -97,7 +132,8 @@ class MyInternshipsPage extends StatelessWidget {
               Expanded(
                 child: GradientButton(
                   text: 'View Applicants',
-                  onPressed: () {},
+                  onPressed: () => context.push('/recruiter/applications'),
+                  height: 44,
                 ),
               ),
             ],
@@ -106,8 +142,4 @@ class MyInternshipsPage extends StatelessWidget {
       ),
     ).withMargin(const EdgeInsets.only(bottom: 16));
   }
-}
-
-extension on Widget {
-  Widget withMargin(EdgeInsets margin) => Container(margin: margin, child: this);
 }

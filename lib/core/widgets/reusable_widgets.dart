@@ -119,8 +119,11 @@ class AppTextField extends StatelessWidget {
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
   final IconData? prefixIcon;
-
+  final IconData? suffixIcon;
   final int? maxLines;
+  final void Function(String)? onChanged;
+  final bool readOnly;
+  final VoidCallback? onTap;
 
   const AppTextField({
     super.key,
@@ -131,7 +134,11 @@ class AppTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.validator,
     this.prefixIcon,
+    this.suffixIcon,
     this.maxLines = 1,
+    this.onChanged,
+    this.readOnly = false,
+    this.onTap,
   });
 
   @override
@@ -154,9 +161,13 @@ class AppTextField extends StatelessWidget {
           keyboardType: keyboardType,
           validator: validator,
           maxLines: maxLines,
+          onChanged: onChanged,
+          readOnly: readOnly,
+          onTap: onTap,
           decoration: InputDecoration(
             hintText: hint,
             prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: AppColors.mutedText, size: 20) : null,
+            suffixIcon: suffixIcon != null ? Icon(suffixIcon, color: AppColors.mutedText, size: 20) : null,
           ),
         ),
       ],
@@ -327,6 +338,10 @@ class RatingStars extends StatelessWidget {
       }),
     );
   }
+}
+
+extension WidgetMargin on Widget {
+  Widget withMargin(EdgeInsets margin) => Container(margin: margin, child: this);
 }
 
 class PageScaffold extends StatelessWidget {

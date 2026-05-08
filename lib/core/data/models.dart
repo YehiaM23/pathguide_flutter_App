@@ -8,13 +8,19 @@ class UserModel extends Equatable {
   final String email;
   final UserRole role;
   final String? phone;
+  // Student Specific
   final String? university;
   final String? major;
   final String? graduationYear;
   final String? careerPath;
-  final String? bio;
   final List<String> skills;
   final List<String> interests;
+  // Recruiter & General
+  final String? bio;
+  final String? companyName;
+  final String? companyWebsite;
+  final String? companyIndustry;
+  final String? companyLocation;
 
   const UserModel({
     required this.id,
@@ -29,6 +35,10 @@ class UserModel extends Equatable {
     this.bio,
     this.skills = const [],
     this.interests = const [],
+    this.companyName,
+    this.companyWebsite,
+    this.companyIndustry,
+    this.companyLocation,
   });
 
   @override
@@ -45,6 +55,10 @@ class UserModel extends Equatable {
         bio,
         skills,
         interests,
+        companyName,
+        companyWebsite,
+        companyIndustry,
+        companyLocation,
       ];
 
   UserModel copyWith({
@@ -60,6 +74,10 @@ class UserModel extends Equatable {
     String? bio,
     List<String>? skills,
     List<String>? interests,
+    String? companyName,
+    String? companyWebsite,
+    String? companyIndustry,
+    String? companyLocation,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -74,6 +92,10 @@ class UserModel extends Equatable {
       bio: bio ?? this.bio,
       skills: skills ?? this.skills,
       interests: interests ?? this.interests,
+      companyName: companyName ?? this.companyName,
+      companyWebsite: companyWebsite ?? this.companyWebsite,
+      companyIndustry: companyIndustry ?? this.companyIndustry,
+      companyLocation: companyLocation ?? this.companyLocation,
     );
   }
 }

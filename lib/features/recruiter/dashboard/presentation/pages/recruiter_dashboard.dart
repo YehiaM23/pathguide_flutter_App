@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pathguide_app/core/data/models.dart';
 import 'package:pathguide_app/core/theme/app_colors.dart';
 import 'package:pathguide_app/core/widgets/reusable_widgets.dart';
 import 'package:pathguide_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:pathguide_app/features/recruiter/applications/presentation/bloc/application_bloc.dart';
+import 'package:pathguide_app/features/recruiter/applications/presentation/bloc/application_state.dart';
+import 'package:pathguide_app/features/recruiter/internships/presentation/bloc/internship_bloc.dart';
 import '../widgets/recruiter_dashboard_scaffold.dart';
 
 class RecruiterDashboard extends StatelessWidget {
@@ -15,7 +19,6 @@ class RecruiterDashboard extends StatelessWidget {
       builder: (context, state) {
         final user = state is AuthAuthenticated ? state.user : null;
         final userName = user?.name ?? 'Recruiter';
-        final userEmail = user?.email ?? '';
         
         return RecruiterDashboardScaffold(
           title: 'Dashboard',
@@ -34,7 +37,7 @@ class RecruiterDashboard extends StatelessWidget {
                 const SizedBox(height: 32),
                 _buildStatsGrid(),
                 const SizedBox(height: 32),
-                _buildCompanySummary(userName, userEmail),
+                _buildCompanySummary(context, user),
                 const SizedBox(height: 32),
                 const SectionHeader(
                   title: 'Quick Actions',
@@ -101,24 +104,41 @@ class RecruiterDashboard extends StatelessWidget {
   }
 
   Widget _buildStatsGrid() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
-        return GridView.count(
-          crossAxisCount: crossAxisCount,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 1.5,
-          children: [
-            _statCard('Active Internships', '4', AppColors.primaryBlue, Icons.work_rounded),
-            _statCard('Total Applications', '128', AppColors.teal, Icons.groups_rounded),
-            _statCard('Pending Applications', '12', AppColors.warningYellow, Icons.pending_actions_rounded),
-            _statCard('Completed Internships', '8', AppColors.successGreen, Icons.check_circle_outline_rounded),
-          ],
+    return BlocBuilder<InternshipBloc, InternshipState>(
+      builder: (context, internshipState) {
+        return BlocBuilder<ApplicationBloc, ApplicationState>(
+          builder: (context, appState) {
+            final activeInternships = internshipState is InternshipLoaded 
+                ? internshipState.myInternships.where((i) => i.isActive).length 
+                : 0;
+            
+            final applications = appState is ApplicationLoaded ? appState.applications : [];
+            final totalApps = applications.length;
+            final pendingApps = applications.where((a) => a.status == 'Pending').length;
+            final completedApps = applications.where((a) => a.status == 'Completed').length;
+
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
+                return GridView.count(
+                  crossAxisCount: crossAxisCount,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 1.5,
+                  children: [
+                    _statCard('Active Internships', activeInternships.toString(), AppColors.primaryBlue, Icons.work_rounded),
+                    _statCard('Total Applications', totalApps.toString(), AppColors.teal, Icons.groups_rounded),
+                    _statCard('Pending Applications', pendingApps.toString(), AppColors.warningYellow, Icons.pending_actions_rounded),
+                    _statCard('Completed Internships', completedApps.toString(), AppColors.successGreen, Icons.check_circle_outline_rounded),
+                  ],
+                );
+              }
+            );
+          },
         );
-      }
+      },
     );
   }
 
@@ -152,7 +172,12 @@ class RecruiterDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildCompanySummary(String name, String email) {
+  Widget _buildCompanySummary(BuildContext context, UserModel? user) {
+    final companyName = user?.companyName ?? user?.name ?? 'Company';
+    final email = user?.email ?? '';
+    final website = user?.companyWebsite ?? 'Not set';
+    final location = user?.companyLocation ?? 'Not set';
+
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,14 +186,17 @@ class RecruiterDashboard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Company Profile', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.darkNavy)),
-              TextButton(onPressed: () {}, child: const Text('Edit')),
+              TextButton(
+                onPressed: () => context.push('/recruiter/profile'),
+                child: const Text('Edit'),
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          _infoRow(Icons.business_outlined, 'Company', name),
+          _infoRow(Icons.business_outlined, 'Company', companyName),
           _infoRow(Icons.email_outlined, 'Work Email', email),
-          _infoRow(Icons.language_outlined, 'Website', 'www.${name.toLowerCase().replaceAll(' ', '')}.com'),
-          _infoRow(Icons.location_on_outlined, 'Location', 'Cairo, Egypt'),
+          _infoRow(Icons.language_outlined, 'Website', website),
+          _infoRow(Icons.location_on_outlined, 'Location', location),
         ],
       ),
     );
@@ -182,8 +210,16 @@ class RecruiterDashboard extends StatelessWidget {
           Icon(icon, size: 18, color: AppColors.mutedText),
           const SizedBox(width: 12),
           Text(label, style: const TextStyle(color: AppColors.mutedText, fontSize: 14)),
+          const SizedBox(width: 8),
           const Spacer(),
-          Text(value, style: const TextStyle(color: AppColors.darkNavy, fontWeight: FontWeight.w600, fontSize: 14)),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: const TextStyle(color: AppColors.darkNavy, fontWeight: FontWeight.w600, fontSize: 14),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );
@@ -229,28 +265,58 @@ class RecruiterDashboard extends StatelessWidget {
   }
 
   Widget _buildRecentApplicantsSection(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Recent Activity',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.darkNavy),
-            ),
-            TextButton(
-              onPressed: () => context.push('/recruiter/applications'),
-              child: const Text('View All'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        _buildRecentApplicant('Ahmed Ali', 'Mobile Developer', '2 hours ago'),
-        const SizedBox(height: 12),
-        _buildRecentApplicant('Sara Mohamed', 'UX/UI Designer', '5 hours ago'),
-        const SizedBox(height: 12),
-        _buildRecentApplicant('John Doe', 'Backend Intern', 'Yesterday'),
-      ],
+    return BlocBuilder<ApplicationBloc, ApplicationState>(
+      builder: (context, state) {
+        if (state is ApplicationLoaded && state.applications.isNotEmpty) {
+          // Get the last 3 applications
+          final recentApps = state.applications.reversed.take(3).toList();
+          
+          return Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Recent Activity',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.darkNavy),
+                  ),
+                  TextButton(
+                    onPressed: () => context.push('/recruiter/applications'),
+                    child: const Text('View All'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ...recentApps.map((app) {
+                // Mock mapping student name and internship title
+                final Map<String, String> studentMocks = {
+                  'std_1': 'Ahmed Ali',
+                  'std_2': 'Sara Mohamed',
+                  'std_3': 'John Doe',
+                };
+                final studentName = studentMocks[app.studentId] ?? 'Unknown';
+                
+                return BlocBuilder<InternshipBloc, InternshipState>(
+                  builder: (context, intState) {
+                    String internshipTitle = 'Internship';
+                    if (intState is InternshipLoaded) {
+                      internshipTitle = intState.myInternships.firstWhere(
+                        (i) => i.id == app.internshipId,
+                        orElse: () => InternshipModel(id: '', title: 'Internship', company: '', description: '', location: '', duration: '', stipend: '', startDate: '', deadline: '', requiredSkill: ''),
+                      ).title;
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _buildRecentApplicant(studentName, internshipTitle, app.appliedDate),
+                    );
+                  },
+                );
+              }),
+            ],
+          );
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 
@@ -268,7 +334,7 @@ class RecruiterDashboard extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                name[0], 
+                name.isNotEmpty ? name[0] : '?',
                 style: const TextStyle(color: AppColors.primaryBlue, fontWeight: FontWeight.bold, fontSize: 18),
               ),
             ),

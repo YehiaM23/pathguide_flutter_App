@@ -33,6 +33,7 @@ class RecruiterDashboardScaffold extends StatelessWidget {
               showLogo: true,
               title: title,
               actions: actions,
+              scrollable: false, // Set to false to allow internal scrolling and Expanded widgets
               drawer: isDesktop ? null : _buildRecruiterDrawer(context, userName, userEmail),
               body: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
