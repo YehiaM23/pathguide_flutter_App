@@ -29,6 +29,8 @@ class _SignupPageState extends State<SignupPage> {
   String? _selectedUniversity;
   String? _selectedMajor;
   final _gradYearController = TextEditingController();
+  bool? _hasSpecificPath;
+  String? _selectedCareerPath;
 
   // Recruiter Specific
   final _companyNameController = TextEditingController();
@@ -49,16 +51,16 @@ class _SignupPageState extends State<SignupPage> {
 
   final List<String> _interests = [
     'AI & Machine Learning', 'Anime', 'Audiobooks', 'Basketball', 'Beach', 'Blogging',
-    'Building Apps', 'Business Strategy', 'Camping', 'Coffee', 'Community Service',
+    'Building Apps', 'Business Strategy', 'Camping','Community Service',
     'Content Creation', 'Cooking', 'Cycling', 'Digital Art', 'Drawing', 'Entrepreneurship',
     'Fashion', 'Football', 'Freelancing', 'Gadgets', 'Gaming', 'Graphic Design',
     'Gym & Fitness', 'Hiking', 'Investing', 'Leadership', 'Learning Languages',
     'Marketing', 'Martial Arts', 'Mentoring', 'Movies', 'Music', 'Music Concerts',
     'Nature', 'Networking', 'Online Courses', 'Open Source', 'Personal Finance',
     'Photography', 'Playing Instruments', 'Podcasts', 'Programming', 'Public Speaking',
-    'Reading', 'Road Trips', 'Running', 'Self Improvement', 'Stand-up Comedy',
+    'Reading', 'Road Trips', 'Running', 'Self Improvement',
     'Startups', 'Swimming', 'Teaching', 'Tech News', 'Theatre', 'Traveling',
-    'TV Series', 'Video Editing', 'Volunteering', 'Writing', 'Yoga'
+    'TV Series', 'Video Editing', 'Volunteering', 'Writing'
   ];
 
   final List<String> _selectedInterests = [];
@@ -87,6 +89,15 @@ class _SignupPageState extends State<SignupPage> {
     'Cybersecurity', 'Data Science', 'Computer Engineering'
   ];
 
+  final List<String> _allCareers = [
+    'Software Engineer', 'Full-Stack Developer', 'Backend Developer', 
+    'Frontend Developer', 'Mobile Developer', 'Data Scientist', 
+    'AI / Machine Learning Engineer', 'Cybersecurity Analyst', 
+    'Cloud Engineer', 'DevOps Engineer', 'UI/UX Designer', 
+    'Game Developer', 'Embedded Systems Engineer', 'Data Engineer',
+    'Blockchain Developer', 'Network Engineer'
+  ];
+
   @override
   Widget build(BuildContext context) {
     return PageScaffold(
@@ -95,19 +106,38 @@ class _SignupPageState extends State<SignupPage> {
         children: [
           _buildStepIndicator(),
           const SizedBox(height: 40),
-          _currentStep == 0 ? _buildStep1() : _buildStep2(),
+          _buildCurrentStep(),
         ],
       ),
     );
+  }
+
+  Widget _buildCurrentStep() {
+    if (_currentStep == 0) return _buildStep1();
+    if (_currentStep == 1) return _buildStep2();
+    return _buildStep3();
   }
 
   Widget _buildStepIndicator() {
     return Row(
       children: [
         Expanded(child: _indicatorItem(1, 'Account', _currentStep >= 0)),
-        Container(width: 40, height: 2, color: _currentStep >= 1 ? AppColors.primaryBlue : AppColors.cardBorder),
+        _indicatorLine(_currentStep >= 1),
         Expanded(child: _indicatorItem(2, 'Profile', _currentStep >= 1)),
+        if (_selectedRole == 'Candidate') ...[
+          _indicatorLine(_currentStep >= 2),
+          Expanded(child: _indicatorItem(3, 'Career', _currentStep >= 2)),
+        ],
       ],
+    );
+  }
+
+  Widget _indicatorLine(bool isActive) {
+    return Container(
+      width: 30, 
+      height: 2, 
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      color: isActive ? AppColors.primaryBlue : AppColors.cardBorder
     );
   }
 
@@ -177,6 +207,14 @@ class _SignupPageState extends State<SignupPage> {
               controller: _nameController,
               prefixIcon: Icons.person_outline,
               validator: (v) => v!.isEmpty ? 'Please enter your name' : null,
+            ),
+            const SizedBox(height: 20),
+            AppTextField(
+              label: 'Phone Number',
+              hint: '+20 123 456 7890',
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              prefixIcon: Icons.phone_outlined,
             ),
             const SizedBox(height: 20),
             AppTextField(
@@ -398,21 +436,25 @@ class _SignupPageState extends State<SignupPage> {
                   child: BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
                       return GradientButton(
-                        text: 'Finish Setup',
+                        text: _selectedRole == 'Candidate' ? 'Next' : 'Finish Setup',
                         isLoading: state is AuthLoading,
                         onPressed: () {
                           if (_formKey2.currentState!.validate()) {
-                            final role = _selectedRole == 'Candidate' ? UserRole.student : UserRole.recruiter;
-                            context.read<AuthBloc>().add(RegisterRequested(
-                              name: _nameController.text,
-                              email: _emailController.text,
-                              password: _passwordController.text,
-                              role: role,
-                            ));
-                            
-                            if (role == UserRole.student) {
-                              _showCareerPathDialog();
+                            if (_selectedRole == 'Candidate') {
+                              setState(() => _currentStep = 2);
                             } else {
+                              context.read<AuthBloc>().add(RegisterRequested(
+                                name: _nameController.text,
+                                email: _emailController.text,
+                                password: _passwordController.text,
+                                role: UserRole.recruiter,
+                                phone: _phoneController.text,
+                                companyName: _companyNameController.text,
+                                companyWebsite: _companyWebsiteController.text,
+                                companyIndustry: _companyIndustryController.text,
+                                companyLocation: _companyLocationController.text,
+                                companyDescription: _companyDescriptionController.text,
+                              ));
                               context.go('/recruiter/dashboard');
                             }
                           }
@@ -424,6 +466,152 @@ class _SignupPageState extends State<SignupPage> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStep3() {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeader(
+            title: 'Career Direction',
+            subtitle: 'Let\'s define your professional path',
+          ),
+          const SizedBox(height: 32),
+          const Text(
+            'Do you have a specific career path in mind?',
+            style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkNavy, fontSize: 16),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _choiceOption('Yes', _hasSpecificPath == true, () => setState(() => _hasSpecificPath = true)),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _choiceOption('No, Recommend', _hasSpecificPath == false, () => setState(() => _hasSpecificPath = false)),
+              ),
+            ],
+          ),
+          if (_hasSpecificPath == true) ...[
+            const SizedBox(height: 32),
+            _buildDropdown('Desired Career Path', 'Select Path', _allCareers, (v) => setState(() => _selectedCareerPath = v)),
+          ],
+          if (_hasSpecificPath == false) ...[
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.primaryBlue.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.1)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.auto_awesome, color: AppColors.primaryBlue, size: 20),
+                      SizedBox(width: 8),
+                      Text('System Recommendation', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryBlue)),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Based on your skills and interests, we recommend focusing on:',
+                    style: TextStyle(fontSize: 14, color: AppColors.darkNavy),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _getRecommendedPath(),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.primaryBlue),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          const SizedBox(height: 48),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => setState(() => _currentStep = 1),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Back'),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    return GradientButton(
+                      text: 'Finish Setup',
+                      isLoading: state is AuthLoading,
+                      onPressed: (_hasSpecificPath == null || (_hasSpecificPath == true && _selectedCareerPath == null)) 
+                          ? null 
+                          : () {
+                        context.read<AuthBloc>().add(RegisterRequested(
+                          name: _nameController.text,
+                          email: _emailController.text,
+                          password: _passwordController.text,
+                          role: UserRole.student,
+                          phone: _phoneController.text,
+                          university: _selectedUniversity,
+                          major: _selectedMajor,
+                          graduationYear: _gradYearController.text,
+                          careerPath: _hasSpecificPath == true ? _selectedCareerPath : _getRecommendedPath(),
+                          skills: _selectedSkills,
+                          interests: _selectedInterests,
+                        ));
+                        context.go('/student/dashboard');
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getRecommendedPath() {
+    if (_selectedSkills.contains('Flutter') || _selectedSkills.contains('React Native')) {
+      return 'Mobile Developer';
+    } else if (_selectedSkills.contains('Python') || _selectedInterests.contains('AI & Machine Learning')) {
+      return 'Data Scientist';
+    } else if (_selectedSkills.contains('Figma') || _selectedSkills.contains('Adobe XD')) {
+      return 'UI/UX Designer';
+    }
+    return 'Full-Stack Developer';
+  }
+
+  Widget _choiceOption(String text, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primaryBlue : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: isSelected ? AppColors.primaryBlue : AppColors.cardBorder),
+        ),
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: isSelected ? Colors.white : AppColors.mutedText,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ),
     );
@@ -457,68 +645,7 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  void _showCareerPathDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Ready to Start?'),
-        content: const Text('Would you like us to recommend a personalized career path based on your skills?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _showSelectionDialog('Choose Your Path', false);
-            },
-            child: const Text('I\'ll Choose'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _showSelectionDialog('Recommended for You', true);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryBlue,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            child: const Text('Yes, Recommend'),
-          ),
-        ],
-      ),
-    );
-  }
 
-  void _showSelectionDialog(String title, bool isRecommended) {
-    final paths = [
-      'Full-Stack Developer', 'Mobile Developer', 'Data Scientist', 
-      'AI / Machine Learning Engineer', 'Backend Developer', 
-      'Frontend Developer', 'UI/UX Designer', 'DevOps Engineer'
-    ];
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(title),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.separated(
-            shrinkWrap: true,
-            itemCount: paths.length,
-            separatorBuilder: (context, index) => const Divider(height: 1),
-            itemBuilder: (context, index) => ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(paths[index], style: const TextStyle(fontWeight: FontWeight.w500)),
-              trailing: isRecommended && index < 2 ? const StatusBadge(label: '98% Match', color: AppColors.successGreen) : const Icon(Icons.chevron_right, size: 20),
-              onTap: () => context.go('/student/dashboard'),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 

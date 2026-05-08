@@ -55,7 +55,7 @@ class PathGuideLogo extends StatelessWidget {
 
 class GradientButton extends StatelessWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final double? width;
   final double? height;
   final bool isLoading;
@@ -63,7 +63,7 @@ class GradientButton extends StatelessWidget {
   const GradientButton({
     super.key,
     required this.text,
-    required this.onPressed,
+    this.onPressed,
     this.width,
     this.height,
     this.isLoading = false,
