@@ -80,3 +80,11 @@ class RegisterRequested extends AuthEvent {
 }
 
 class LogoutRequested extends AuthEvent {}
+
+class UserUpdateRequested extends AuthEvent {
+  final UserModel updatedUser;
+  const UserUpdateRequested(this.updatedUser);
+
+  @override
+  List<Object?> get props => [updatedUser];
+}

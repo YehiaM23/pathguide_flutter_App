@@ -34,8 +34,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         id: DateTime.now().millisecondsSinceEpoch.toString(), 
         name: event.name, 
         email: event.email, 
-        role: event.role
+        role: event.role,
+        phone: event.phone,
+        university: event.university,
+        major: event.major,
+        graduationYear: event.graduationYear,
+        careerPath: event.careerPath,
+        skills: event.skills ?? [],
+        interests: event.interests ?? [],
       )));
+    });
+
+    on<UserUpdateRequested>((event, emit) {
+      if (state is AuthAuthenticated) {
+        emit(AuthAuthenticated(event.updatedUser));
+      }
     });
 
     on<LogoutRequested>((event, emit) {

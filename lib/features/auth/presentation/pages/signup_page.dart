@@ -134,7 +134,7 @@ class _SignupPageState extends State<SignupPage> {
 
   Widget _indicatorLine(bool isActive) {
     return Container(
-      width: 30, 
+      width: 20, 
       height: 2, 
       margin: const EdgeInsets.symmetric(horizontal: 4),
       color: isActive ? AppColors.primaryBlue : AppColors.cardBorder
@@ -172,9 +172,12 @@ class _SignupPageState extends State<SignupPage> {
         const SizedBox(height: 8),
         Text(
           label,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: isActive ? AppColors.darkNavy : AppColors.mutedText,
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
           ),
         ),
@@ -381,9 +384,21 @@ class _SignupPageState extends State<SignupPage> {
                 prefixIcon: Icons.code,
               ),
               const SizedBox(height: 32),
-              _buildChipSection('Technical Skills', 'Select your top skills', _skills, _selectedSkills),
+              _buildChipSection(
+                'Technical Skills', 
+                'Select your top skills', 
+                _skills, 
+                _selectedSkills,
+                () => _showAddSelectionDialog('Skill', _skills, _selectedSkills),
+              ),
               const SizedBox(height: 32),
-              _buildChipSection('Interests', 'What drives you?', _interests, _selectedInterests),
+              _buildChipSection(
+                'Interests', 
+                'What drives you?', 
+                _interests, 
+                _selectedInterests,
+                () => _showAddSelectionDialog('Interest', _interests, _selectedInterests),
+              ),
             ] else ...[
               AppTextField(
                 label: 'Company Website', 
@@ -513,22 +528,30 @@ class _SignupPageState extends State<SignupPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.auto_awesome, color: AppColors.primaryBlue, size: 20),
-                      SizedBox(width: 8),
-                      Text('System Recommendation', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryBlue)),
-                    ],
+              Row(
+                children: [
+                  const Icon(Icons.auto_awesome, color: AppColors.primaryBlue, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'System Recommendation', 
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryBlue),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
+                ],
+              ),
                   const SizedBox(height: 12),
                   const Text(
                     'Based on your skills and interests, we recommend focusing on:',
                     style: TextStyle(fontSize: 14, color: AppColors.darkNavy),
+                    softWrap: true,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     _getRecommendedPath(),
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.primaryBlue),
+                    softWrap: true,
                   ),
                 ],
               ),
@@ -598,7 +621,7 @@ class _SignupPageState extends State<SignupPage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primaryBlue : Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -607,9 +630,11 @@ class _SignupPageState extends State<SignupPage> {
         child: Center(
           child: Text(
             text,
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: isSelected ? Colors.white : AppColors.mutedText,
               fontWeight: FontWeight.bold,
+              fontSize: 13,
             ),
           ),
         ),
@@ -617,31 +642,71 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  Widget _buildChipSection(String title, String subtitle, List<String> items, List<String> selectedList) {
+  Widget _buildChipSection(String title, String subtitle, List<String> masterList, List<String> selectedList, VoidCallback onAdd) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkNavy, fontSize: 16)),
-        Text(subtitle, style: const TextStyle(color: AppColors.mutedText, fontSize: 13)),
-        const SizedBox(height: 16),
-        Wrap(
-          spacing: 8,
-          runSpacing: 10,
-          children: items.map((item) => SkillChip(
-            label: item,
-            isSelected: selectedList.contains(item),
-            onTap: () {
-              setState(() {
-                if (selectedList.contains(item)) {
-                  selectedList.remove(item);
-                } else {
-                  selectedList.add(item);
-                }
-              });
-            },
-          )).toList(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkNavy, fontSize: 16)),
+                  Text(subtitle, style: const TextStyle(color: AppColors.mutedText, fontSize: 13)),
+                ],
+              ),
+            ),
+            IconButton(
+              onPressed: onAdd,
+              icon: const Icon(Icons.add_circle_outline, color: AppColors.primaryBlue),
+            ),
+          ],
         ),
+        const SizedBox(height: 16),
+        if (selectedList.isEmpty)
+          const Text('None selected yet', style: TextStyle(color: AppColors.mutedText, fontSize: 13, fontStyle: FontStyle.italic))
+        else
+          Wrap(
+            spacing: 8,
+            runSpacing: 10,
+            children: selectedList.map((item) => SkillChip(
+              label: item,
+              isSelected: true,
+              onTap: () => setState(() => selectedList.remove(item)),
+            )).toList(),
+          ),
       ],
+    );
+  }
+
+  void _showAddSelectionDialog(String title, List<String> masterList, List<String> selectedList) {
+    final available = masterList.where((item) => !selectedList.contains(item)).toList();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Select $title'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: available.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(available[index]),
+                onTap: () {
+                  setState(() => selectedList.add(available[index]));
+                  Navigator.pop(context);
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+        ],
+      ),
     );
   }
 

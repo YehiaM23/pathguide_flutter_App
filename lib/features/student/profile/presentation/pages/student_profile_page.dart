@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pathguide_app/core/data/models.dart';
 import 'package:pathguide_app/core/theme/app_colors.dart';
 import 'package:pathguide_app/core/widgets/reusable_widgets.dart';
 import 'package:pathguide_app/features/auth/presentation/bloc/auth_bloc.dart';
@@ -28,6 +29,70 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
   final List<String> _skills = [];
   final List<String> _interests = [];
 
+  final List<String> _allSkillsMaster = [
+    'Adobe XD', 'Angular', 'AWS', 'CSS', 'Docker', 'Excel', 'Express', 'Figma',
+    'Flutter', 'Git', 'HTML', 'Java', 'JavaScript', 'JUnit', 'Kotlin', 'Kubernetes',
+    'MongoDB', 'NumPy', 'Pandas', 'PostgreSQL', 'Power BI', 'Python', 'PyTorch',
+    'R', 'React', 'React Native', 'REST APIs', 'Sass', 'Selenium', 'SQL', 'Swift',
+    'Tableau', 'TensorFlow', 'TestNG', 'TypeScript', 'Vue.js'
+  ];
+
+  final List<String> _allInterestsMaster = [
+    'AI & Machine Learning', 'Anime', 'Audiobooks', 'Basketball', 'Beach', 'Blogging',
+    'Building Apps', 'Business Strategy', 'Camping','Community Service',
+    'Content Creation', 'Cooking', 'Cycling', 'Digital Art', 'Drawing', 'Entrepreneurship',
+    'Fashion', 'Football', 'Freelancing', 'Gadgets', 'Gaming', 'Graphic Design',
+    'Gym & Fitness', 'Hiking', 'Investing', 'Leadership', 'Learning Languages',
+    'Marketing', 'Martial Arts', 'Mentoring', 'Movies', 'Music', 'Music Concerts',
+    'Nature', 'Networking', 'Online Courses', 'Open Source', 'Personal Finance',
+    'Photography', 'Playing Instruments', 'Podcasts', 'Programming', 'Public Speaking',
+    'Reading', 'Road Trips', 'Running', 'Self Improvement',
+    'Startups', 'Swimming', 'Teaching', 'Tech News', 'Theatre', 'Traveling',
+    'TV Series', 'Video Editing', 'Volunteering', 'Writing'
+  ];
+
+  bool _isInitialized = false;
+
+  void _initializeData(UserModel user) {
+    if (_isInitialized) return;
+    _nameController.text = user.name;
+    _emailController.text = user.email;
+    _phoneController.text = user.phone ?? '';
+    _univController.text = user.university ?? '';
+    _majorController.text = user.major ?? '';
+    _gradYearController.text = user.graduationYear ?? '';
+    _bioController.text = user.bio ?? '';
+    _selectedCareerPath = user.careerPath;
+    _skills.addAll(user.skills);
+    _interests.addAll(user.interests);
+    _isInitialized = true;
+  }
+
+  void _saveProfile(UserModel currentUser) {
+    final updatedUser = currentUser.copyWith(
+      name: _nameController.text,
+      email: _emailController.text,
+      phone: _phoneController.text,
+      university: _univController.text,
+      major: _majorController.text,
+      graduationYear: _gradYearController.text,
+      bio: _bioController.text,
+      careerPath: _selectedCareerPath,
+      skills: _skills,
+      interests: _interests,
+    );
+
+    context.read<AuthBloc>().add(UserUpdateRequested(updatedUser));
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Profile updated successfully!'),
+        backgroundColor: AppColors.successGreen,
+      ),
+    );
+    context.pop();
+  }
+
   Future<void> _pickCV() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -43,30 +108,26 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return PageScaffold(
-      title: 'Edit Profile',
-      actions: [
-        TextButton(
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Profile updated successfully!'), backgroundColor: AppColors.successGreen),
-            );
-            context.pop();
-          },
-          child: const Text('Save', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryBlue)),
-        ),
-      ],
-      body: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, state) {
-          if (state is AuthAuthenticated) {
-            // Only initialize once or use a better state management for form fields
-            if (_nameController.text.isEmpty) {
-              _nameController.text = state.user.name;
-              _emailController.text = state.user.email;
-            }
-          }
-          
-          return SingleChildScrollView(
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        UserModel? currentUser;
+        if (state is AuthAuthenticated) {
+          currentUser = state.user;
+          _initializeData(currentUser);
+        }
+
+        return PageScaffold(
+          title: 'Edit Profile',
+          actions: [
+            TextButton(
+              onPressed: currentUser != null ? () => _saveProfile(currentUser!) : null,
+              child: const Text('Save',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryBlue)),
+            ),
+          ],
+          body: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -80,9 +141,9 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
                 const SizedBox(height: 40),
               ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -157,9 +218,59 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
           const Text('Career Path', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
-            initialValue: _selectedCareerPath,
-            items: ['Full-Stack Developer', 'Mobile Developer', 'Data Scientist', 'UI/UX Designer']
-                .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            isExpanded: true,
+            value: (_selectedCareerPath != null && [
+              'Software Engineer',
+              'Full-Stack Developer',
+              'Backend Developer',
+              'Frontend Developer',
+              'Mobile Developer',
+              'Data Scientist',
+              'AI / Machine Learning Engineer',
+              'Cybersecurity Analyst',
+              'Cloud Engineer',
+              'DevOps Engineer',
+              'UI/UX Designer',
+              'Game Developer',
+              'Embedded Systems Engineer',
+              'Data Engineer',
+              'Blockchain Developer',
+              'Network Engineer'
+            ].contains(_selectedCareerPath)) ? _selectedCareerPath : null,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: AppColors.background,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            items: [
+              'Software Engineer',
+              'Full-Stack Developer',
+              'Backend Developer',
+              'Frontend Developer',
+              'Mobile Developer',
+              'Data Scientist',
+              'AI / Machine Learning Engineer',
+              'Cybersecurity Analyst',
+              'Cloud Engineer',
+              'DevOps Engineer',
+              'UI/UX Designer',
+              'Game Developer',
+              'Embedded Systems Engineer',
+              'Data Engineer',
+              'Blockchain Developer',
+              'Network Engineer'
+            ]
+                .map((e) => DropdownMenuItem(
+                      value: e,
+                      child: Text(
+                        e,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ))
                 .toList(),
             onChanged: (v) => setState(() => _selectedCareerPath = v),
           ),
@@ -174,18 +285,24 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SectionHeader(
-            title: 'Skills', 
+            title: 'Skills',
             subtitle: 'Your technical and professional skills',
           ),
           const SizedBox(height: 16),
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _skills.map((s) => SkillChip(label: s, isSelected: true)).toList(),
+            children: _skills
+                .map((s) => SkillChip(
+                      label: s,
+                      isSelected: true,
+                      onTap: () => setState(() => _skills.remove(s)),
+                    ))
+                .toList(),
           ),
           const SizedBox(height: 24),
           OutlinedButton.icon(
-            onPressed: () {},
+            onPressed: _showAddSkillDialog,
             icon: const Icon(Icons.add, size: 18),
             label: const Text('Add Skill'),
             style: OutlinedButton.styleFrom(
@@ -199,24 +316,59 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
     );
   }
 
+  void _showAddSkillDialog() {
+    final available = _allSkillsMaster.where((s) => !_skills.contains(s)).toList();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Skill'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: available.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(available[index]),
+                onTap: () {
+                  setState(() => _skills.add(available[index]));
+                  Navigator.pop(context);
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+        ],
+      ),
+    );
+  }
+
   Widget _buildInterestsSection() {
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SectionHeader(
-            title: 'Interests', 
+            title: 'Interests',
             subtitle: 'Your areas of interest',
           ),
           const SizedBox(height: 16),
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _interests.map((i) => SkillChip(label: i, isSelected: true)).toList(),
+            children: _interests
+                .map((i) => SkillChip(
+                      label: i,
+                      isSelected: true,
+                      onTap: () => setState(() => _interests.remove(i)),
+                    ))
+                .toList(),
           ),
           const SizedBox(height: 24),
           OutlinedButton.icon(
-            onPressed: () {},
+            onPressed: _showAddInterestDialog,
             icon: const Icon(Icons.add, size: 18),
             label: const Text('Add Interest'),
             style: OutlinedButton.styleFrom(
@@ -225,6 +377,35 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddInterestDialog() {
+    final available = _allInterestsMaster.where((i) => !_interests.contains(i)).toList();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Interest'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: available.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(available[index]),
+                onTap: () {
+                  setState(() => _interests.add(available[index]));
+                  Navigator.pop(context);
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
         ],
       ),
     );

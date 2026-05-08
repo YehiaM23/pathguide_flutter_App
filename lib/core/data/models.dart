@@ -7,16 +7,75 @@ class UserModel extends Equatable {
   final String name;
   final String email;
   final UserRole role;
+  final String? phone;
+  final String? university;
+  final String? major;
+  final String? graduationYear;
+  final String? careerPath;
+  final String? bio;
+  final List<String> skills;
+  final List<String> interests;
 
   const UserModel({
     required this.id,
     required this.name,
     required this.email,
     required this.role,
+    this.phone,
+    this.university,
+    this.major,
+    this.graduationYear,
+    this.careerPath,
+    this.bio,
+    this.skills = const [],
+    this.interests = const [],
   });
 
   @override
-  List<Object?> get props => [id, name, email, role];
+  List<Object?> get props => [
+        id,
+        name,
+        email,
+        role,
+        phone,
+        university,
+        major,
+        graduationYear,
+        careerPath,
+        bio,
+        skills,
+        interests,
+      ];
+
+  UserModel copyWith({
+    String? id,
+    String? name,
+    String? email,
+    UserRole? role,
+    String? phone,
+    String? university,
+    String? major,
+    String? graduationYear,
+    String? careerPath,
+    String? bio,
+    List<String>? skills,
+    List<String>? interests,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      role: role ?? this.role,
+      phone: phone ?? this.phone,
+      university: university ?? this.university,
+      major: major ?? this.major,
+      graduationYear: graduationYear ?? this.graduationYear,
+      careerPath: careerPath ?? this.careerPath,
+      bio: bio ?? this.bio,
+      skills: skills ?? this.skills,
+      interests: interests ?? this.interests,
+    );
+  }
 }
 
 class StudentProfileModel extends Equatable {
