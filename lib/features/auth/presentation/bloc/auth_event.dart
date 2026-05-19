@@ -79,7 +79,23 @@ class RegisterRequested extends AuthEvent {
       ];
 }
 
+class GoogleSignInRequested extends AuthEvent {
+  final String role;
+  const GoogleSignInRequested({this.role = 'student'});
+
+  @override
+  List<Object?> get props => [role];
+}
+
 class LogoutRequested extends AuthEvent {}
+
+class MockSignIn extends AuthEvent {
+  final UserModel user;
+  const MockSignIn(this.user);
+
+  @override
+  List<Object?> get props => [user];
+}
 
 class UserUpdateRequested extends AuthEvent {
   final UserModel updatedUser;

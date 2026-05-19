@@ -17,10 +17,21 @@ class UserModel extends Equatable {
   final List<String> interests;
   // Recruiter & General
   final String? bio;
+  final String? linkedinUrl;
+  final String? githubUrl;
   final String? companyName;
   final String? companyWebsite;
   final String? companyIndustry;
   final String? companyLocation;
+  // Recruiter Extended
+  final String? gender;
+  final String? age;
+  final String? recruiterRole;
+  final String? yearsOfExperience;
+  final String? companyAddress;
+  final String? companyPhone;
+  final String? companyFoundedYear;
+  final String? companyLinkedin;
 
   const UserModel({
     required this.id,
@@ -33,32 +44,32 @@ class UserModel extends Equatable {
     this.graduationYear,
     this.careerPath,
     this.bio,
+    this.linkedinUrl,
+    this.githubUrl,
     this.skills = const [],
     this.interests = const [],
     this.companyName,
     this.companyWebsite,
     this.companyIndustry,
     this.companyLocation,
+    this.gender,
+    this.age,
+    this.recruiterRole,
+    this.yearsOfExperience,
+    this.companyAddress,
+    this.companyPhone,
+    this.companyFoundedYear,
+    this.companyLinkedin,
   });
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        email,
-        role,
-        phone,
-        university,
-        major,
-        graduationYear,
-        careerPath,
-        bio,
-        skills,
-        interests,
-        companyName,
-        companyWebsite,
-        companyIndustry,
-        companyLocation,
+        id, name, email, role, phone,
+        university, major, graduationYear, careerPath,
+        bio, linkedinUrl, githubUrl, skills, interests,
+        companyName, companyWebsite, companyIndustry, companyLocation,
+        gender, age, recruiterRole, yearsOfExperience,
+        companyAddress, companyPhone, companyFoundedYear, companyLinkedin,
       ];
 
   UserModel copyWith({
@@ -72,12 +83,22 @@ class UserModel extends Equatable {
     String? graduationYear,
     String? careerPath,
     String? bio,
+    String? linkedinUrl,
+    String? githubUrl,
     List<String>? skills,
     List<String>? interests,
     String? companyName,
     String? companyWebsite,
     String? companyIndustry,
     String? companyLocation,
+    String? gender,
+    String? age,
+    String? recruiterRole,
+    String? yearsOfExperience,
+    String? companyAddress,
+    String? companyPhone,
+    String? companyFoundedYear,
+    String? companyLinkedin,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -90,12 +111,22 @@ class UserModel extends Equatable {
       graduationYear: graduationYear ?? this.graduationYear,
       careerPath: careerPath ?? this.careerPath,
       bio: bio ?? this.bio,
+      linkedinUrl: linkedinUrl ?? this.linkedinUrl,
+      githubUrl: githubUrl ?? this.githubUrl,
       skills: skills ?? this.skills,
       interests: interests ?? this.interests,
       companyName: companyName ?? this.companyName,
       companyWebsite: companyWebsite ?? this.companyWebsite,
       companyIndustry: companyIndustry ?? this.companyIndustry,
       companyLocation: companyLocation ?? this.companyLocation,
+      gender: gender ?? this.gender,
+      age: age ?? this.age,
+      recruiterRole: recruiterRole ?? this.recruiterRole,
+      yearsOfExperience: yearsOfExperience ?? this.yearsOfExperience,
+      companyAddress: companyAddress ?? this.companyAddress,
+      companyPhone: companyPhone ?? this.companyPhone,
+      companyFoundedYear: companyFoundedYear ?? this.companyFoundedYear,
+      companyLinkedin: companyLinkedin ?? this.companyLinkedin,
     );
   }
 }
@@ -176,6 +207,35 @@ class InternshipModel extends Equatable {
     this.isActive = true,
   });
 
+  factory InternshipModel.fromJson(Map<String, dynamic> j) {
+    final skill = j['requiredSkill'] as Map<String, dynamic>?;
+    final stipendVal = j['stipend'];
+    final weeks = j['periodInWeeks'];
+    return InternshipModel(
+      id: j['internshipId']?.toString() ?? '',
+      title: (j['title'] as String?) ?? '',
+      company: (j['companyName'] as String?) ?? '',
+      description: (j['description'] as String?) ?? '',
+      location: (j['location'] as String?) ?? '',
+      duration: weeks != null ? '$weeks weeks' : 'N/A',
+      stipend: stipendVal != null ? 'EGP $stipendVal' : 'Unpaid',
+      startDate: _fmtDate(j['startDate'] as String?),
+      deadline: _fmtDate(j['deadline'] as String?),
+      requiredSkill: (skill?['skillName'] as String?) ?? '',
+      isActive: (j['isActive'] as bool?) ?? true,
+    );
+  }
+
+  static String _fmtDate(String? iso) {
+    if (iso == null) return '';
+    try {
+      final d = DateTime.parse(iso);
+      return '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+    } catch (_) {
+      return iso;
+    }
+  }
+
   @override
   List<Object?> get props => [
         id,
@@ -196,13 +256,21 @@ class ApplicationModel extends Equatable {
   final String id;
   final String internshipId;
   final String studentId;
-  final String status; // 'Applied', 'Under Review', 'Accepted', 'Rejected', 'Completed'
+  final String status; // 'Pending', 'Under Review', 'Accepted', 'Rejected', 'Completed', 'History'
   final String appliedDate;
   final String? reviewedDate;
   final String? completionDate;
   final double? rating;
   final String? feedback;
   final String? certificateUrl;
+  // Recruiter view extras
+  final String? internshipTitle;
+  final String? companyName;
+  final String? studentName;
+  final String? studentEmail;
+  // Student review (submitted after internship completes)
+  final double? studentRating;
+  final String? studentReview;
 
   const ApplicationModel({
     required this.id,
@@ -215,20 +283,49 @@ class ApplicationModel extends Equatable {
     this.rating,
     this.feedback,
     this.certificateUrl,
+    this.internshipTitle,
+    this.companyName,
+    this.studentName,
+    this.studentEmail,
+    this.studentRating,
+    this.studentReview,
   });
+
+  factory ApplicationModel.fromJson(Map<String, dynamic> j) {
+    return ApplicationModel(
+      id: j['applicationId']?.toString() ?? '',
+      internshipId: j['internshipId']?.toString() ?? '',
+      studentId: j['studentId']?.toString() ?? '',
+      status: _mapStatus((j['status'] as String?) ?? 'pending'),
+      appliedDate: InternshipModel._fmtDate(j['appliedAt'] as String?),
+      reviewedDate: InternshipModel._fmtDate(j['reviewedAt'] as String?),
+      completionDate: InternshipModel._fmtDate(j['completedAt'] as String?),
+      rating: j['performanceRating'] != null
+          ? (j['performanceRating'] as num).toDouble()
+          : null,
+      feedback: (j['performanceComment'] as String?) ??
+          (j['reviewerNotes'] as String?),
+      certificateUrl: j['certificateUrl'] as String?,
+      internshipTitle: j['internshipTitle'] as String?,
+      studentName: j['studentName'] as String?,
+      studentEmail: j['studentEmail'] as String?,
+    );
+  }
+
+  static String _mapStatus(String s) => switch (s.toLowerCase()) {
+        'pending'   => 'Pending',
+        'reviewed'  => 'Under Review',
+        'accepted'  => 'Accepted',
+        'rejected'  => 'Rejected',
+        'completed' => 'Completed',
+        _           => s,
+      };
 
   @override
   List<Object?> get props => [
-        id,
-        internshipId,
-        studentId,
-        status,
-        appliedDate,
-        reviewedDate,
-        completionDate,
-        rating,
-        feedback,
-        certificateUrl,
+        id, internshipId, studentId, status, appliedDate,
+        reviewedDate, completionDate, rating, feedback,
+        certificateUrl, studentRating, studentReview,
       ];
 }
 

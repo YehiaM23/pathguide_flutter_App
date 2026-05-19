@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:pathguide_app/core/data/models.dart';
 
 abstract class ApplicationEvent extends Equatable {
   const ApplicationEvent();
@@ -15,14 +14,24 @@ class UpdateApplicationStatus extends ApplicationEvent {
   final String status;
   final String? feedback;
   final double? rating;
+  final String? certificateId;
 
   const UpdateApplicationStatus({
     required this.applicationId,
     required this.status,
     this.feedback,
     this.rating,
+    this.certificateId,
   });
 
   @override
-  List<Object?> get props => [applicationId, status, feedback, rating];
+  List<Object?> get props => [applicationId, status, feedback, rating, certificateId];
+}
+
+class DeleteApplication extends ApplicationEvent {
+  final String applicationId;
+  const DeleteApplication(this.applicationId);
+
+  @override
+  List<Object?> get props => [applicationId];
 }

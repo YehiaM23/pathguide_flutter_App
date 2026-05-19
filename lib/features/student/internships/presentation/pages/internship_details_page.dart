@@ -11,181 +11,99 @@ class InternshipDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final internship = GoRouterState.of(context).extra as InternshipModel;
 
-    return PageScaffold(
-      title: 'Internship Details',
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white, size: 20),
+          onPressed: () => context.pop(),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.bookmark_border_rounded, color: Colors.white),
+            onPressed: () {},
+          ),
+        ],
+      ),
+      extendBodyBehindAppBar: true,
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(internship),
-          const SizedBox(height: 32),
-          
-          const SectionHeader(title: 'Overview'),
-          const SizedBox(height: 16),
-          _buildOverviewGrid(internship),
-          const SizedBox(height: 32),
-          
-          const SectionHeader(title: 'Description'),
-          const SizedBox(height: 12),
-          AppCard(
-            child: Text(
-              internship.description,
-              style: const TextStyle(color: AppColors.mutedText, fontSize: 15, height: 1.6),
-            ),
-          ),
-          const SizedBox(height: 32),
-          
-          const SectionHeader(title: 'Required Skills'),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              SkillChip(label: internship.requiredSkill, isSelected: true),
-              const SkillChip(label: 'Communication'),
-              const SkillChip(label: 'Teamwork'),
-            ],
-          ),
-          const SizedBox(height: 48),
-          
-          GradientButton(
-            text: 'Apply Now',
-            onPressed: () => _showApplyDialog(context, internship),
-          ),
-          const SizedBox(height: 12),
-          Center(
-            child: TextButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.bookmark_border_rounded),
-              label: const Text('Save for Later'),
-            ),
-          ),
-          const SizedBox(height: 40),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(InternshipModel internship) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 64,
-          height: 64,
-          decoration: BoxDecoration(
-            color: AppColors.primaryBlue.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: const Icon(Icons.business_rounded, color: AppColors.primaryBlue, size: 32),
-        ),
-        const SizedBox(width: 20),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                internship.title,
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.darkNavy),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                internship.company,
-                style: const TextStyle(fontSize: 18, color: AppColors.primaryBlue, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 8),
-              const StatusBadge(label: 'Active Opportunity', color: AppColors.successGreen),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOverviewGrid(InternshipModel internship) {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: 2.5,
-      children: [
-        _overviewItem(Icons.location_on_outlined, 'Location', internship.location),
-        _overviewItem(Icons.access_time_rounded, 'Duration', internship.duration),
-        _overviewItem(Icons.payments_outlined, 'Stipend', internship.stipend),
-        _overviewItem(Icons.event_available_rounded, 'Start Date', internship.startDate),
-        _overviewItem(Icons.timer_rounded, 'Deadline', internship.deadline, isDestructive: true),
-      ],
-    );
-  }
-
-  Widget _overviewItem(IconData icon, String label, String value, {bool isDestructive = false}) {
-    return AppCard(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: isDestructive ? AppColors.dangerRed : AppColors.primaryBlue),
-          const SizedBox(width: 12),
+          _HeroHeader(internship: internship),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(label, style: const TextStyle(color: AppColors.mutedText, fontSize: 10)),
-                Text(
-                  value, 
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold, 
-                    fontSize: 13,
-                    color: isDestructive ? AppColors.dangerRed : AppColors.darkNavy,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _OverviewGrid(internship: internship),
+                  const SizedBox(height: 22),
+                  const SectionRow(title: 'About the Role'),
+                  const SizedBox(height: 12),
+                  AppCard(
+                    child: Text(internship.description,
+                        style: const TextStyle(color: AppColors.mutedText, fontSize: 14, height: 1.7)),
                   ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                  const SizedBox(height: 22),
+                  const SectionRow(title: 'Required Skills'),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      SkillChip(label: internship.requiredSkill, isSelected: true),
+                      const SkillChip(label: 'Communication'),
+                      const SkillChip(label: 'Teamwork'),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                  GradientButton(
+                    text: 'Apply Now',
+                    onPressed: () => _showApplyDialog(context, internship),
+                  ),
+                  const SizedBox(height: 12),
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.bookmark_border_rounded, size: 18),
+                      label: const Text('Save for Later'),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
             ),
           ),
         ],
       ),
     );
   }
-
 
   void _showApplyDialog(BuildContext context, InternshipModel internship) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Text('Confirm Application'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('You are about to apply for:'),
+            const Text('You are about to apply for:'),
             const SizedBox(height: 8),
-            Text(
-              internship.title,
-              style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryBlue),
-            ),
+            Text(internship.title, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryBlue)),
             Text('at ${internship.company}'),
             const SizedBox(height: 16),
             const Text('Your profile details and CV will be shared with the recruiter.'),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.mutedText)),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel', style: TextStyle(color: AppColors.mutedText))),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _showSuccessDialog(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryBlue,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            child: const Text('Confirm Application', style: TextStyle(color: Colors.white)),
+            onPressed: () { Navigator.pop(ctx); _showSuccessDialog(context); },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryBlue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+            child: const Text('Confirm', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -195,34 +113,31 @@ class InternshipDetailsPage extends StatelessWidget {
   void _showSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.check_circle_outline, color: AppColors.successGreen, size: 80),
-            const SizedBox(height: 24),
-            const Text(
-              'Applied Successfully!',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(colors: [AppColors.successGreen, Color(0xFF059669)]),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.check_rounded, color: Colors.white, size: 40),
             ),
-            const SizedBox(height: 12),
-            const Text(
-              'Your application has been sent. You can track its status in "My Applications".',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.mutedText),
-            ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
+            const Text('Applied Successfully!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            const Text('Track it in My Applications.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.mutedText)),
+            const SizedBox(height: 28),
             GradientButton(
-              text: 'View My Applications',
-              onPressed: () {
-                Navigator.pop(context); // Close dialog
-                context.pushReplacement('/student/applications');
-              },
+              text: 'View Applications',
+              onPressed: () { Navigator.pop(ctx); context.pushReplacement('/student/applications'); },
             ),
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Back to Internships', style: TextStyle(color: AppColors.mutedText)),
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Back', style: TextStyle(color: AppColors.mutedText)),
             ),
           ],
         ),
@@ -231,3 +146,112 @@ class InternshipDetailsPage extends StatelessWidget {
   }
 }
 
+class _HeroHeader extends StatelessWidget {
+  final InternshipModel internship;
+  const _HeroHeader({required this.internship});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 100, 20, 28),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.business_rounded, color: Colors.white, size: 30),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(internship.title,
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                const SizedBox(height: 4),
+                Text(internship.company,
+                    style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.85), fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.successGreen.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                  ),
+                  child: const Text('Active Opportunity',
+                      style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OverviewGrid extends StatelessWidget {
+  final InternshipModel internship;
+  const _OverviewGrid({required this.internship});
+
+  @override
+  Widget build(BuildContext context) {
+    final items = [
+      (Icons.location_on_outlined, 'Location', internship.location, const [AppColors.primaryBlue, AppColors.teal]),
+      (Icons.access_time_rounded, 'Duration', internship.duration, const [Color(0xFF6366F1), Color(0xFF8B5CF6)]),
+      (Icons.payments_outlined, 'Stipend', internship.stipend, const [AppColors.teal, Color(0xFF06B6D4)]),
+      (Icons.event_available_rounded, 'Start Date', internship.startDate, const [Color(0xFFF59E0B), Color(0xFFF97316)]),
+    ];
+
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 2.2,
+      children: items.map((item) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: item.$4, begin: Alignment.topLeft, end: Alignment.bottomRight),
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [BoxShadow(color: item.$4.first.withValues(alpha: 0.25), blurRadius: 8, offset: const Offset(0, 3))],
+          ),
+          child: Row(
+            children: [
+              Icon(item.$1, color: Colors.white, size: 18),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(item.$2, style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 10)),
+                    Text(item.$3,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                        overflow: TextOverflow.ellipsis),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+}

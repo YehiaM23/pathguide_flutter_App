@@ -2,155 +2,93 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pathguide_app/core/theme/app_colors.dart';
 import 'package:pathguide_app/core/widgets/reusable_widgets.dart';
-import 'package:pathguide_app/core/widgets/app_footer.dart';
 
 class ContactPage extends StatelessWidget {
   const ContactPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return PageScaffold(
-      title: 'Contact Us',
-      padding: EdgeInsets.zero,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SectionHeader(
-                  title: 'Get in Touch',
-                  subtitle: "Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.",
-                ),
-                const SizedBox(height: 32),
-                
-                _buildContactInfoCard(),
-                const SizedBox(height: 24),
-                _buildFollowUsCard(),
-                const SizedBox(height: 40),
-                
-                const SectionHeader(
-                  title: 'Send us a Message',
-                  subtitle: 'Fill out the form below and our team will get back to you.',
-                ),
-                const SizedBox(height: 24),
-                const AppCard(
-                  child: Column(
-                    children: [
-                      AppTextField(label: 'Full Name', hint: 'Enter your name'),
-                      SizedBox(height: 16),
-                      AppTextField(label: 'Email Address', hint: 'Enter your email'),
-                      SizedBox(height: 16),
-                      AppTextField(label: 'Message', hint: 'How can we help you?', maxLines: 4),
-                      SizedBox(height: 24),
-                      GradientButton(text: 'Send Message', onPressed: _dummyAction),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 40),
-              ],
-            ),
-          ),
-          const AppFooter(),
-        ],
-      ),
-    );
-  }
-
-  static void _dummyAction() {}
-
-  Widget _buildContactInfoCard() {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Contact Information',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.darkNavy),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Reach out to us through any of these channels',
-            style: TextStyle(color: AppColors.mutedText, fontSize: 13),
-          ),
-          const SizedBox(height: 24),
-          
-          _buildInfoItem(Icons.phone_rounded, 'Phone Support', '+20 123 456 7890'),
-          const SizedBox(height: 20),
-          _buildInfoItem(Icons.email_rounded, 'Email Address', 'support@pathguide.com'),
-          const SizedBox(height: 20),
-          _buildInfoItem(Icons.location_on_rounded, 'Main Office', 'Smart Village, Giza, Egypt'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFollowUsCard() {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Connect with Us',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.darkNavy),
-          ),
-          const SizedBox(height: 20),
-          _buildSocialRow(Icons.facebook_rounded, 'Facebook', 'PathGuideOfficial'),
-          _buildSocialRow(Icons.camera_alt_rounded, 'Instagram', '@pathguide_app'),
-          _buildSocialRow(Icons.business_rounded, 'LinkedIn', 'PathGuide Platform'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSocialRow(IconData icon, String platform, String handle) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.primaryBlue.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: AppColors.primaryBlue, size: 20),
-          ),
-          const SizedBox(width: 16),
-          Text(platform, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.darkNavy)),
-          const Spacer(),
-          Text(handle, style: const TextStyle(color: AppColors.mutedText, fontSize: 13)),
-        ],
-      ),
-    );
-  }
-
- 
-  Widget _buildInfoItem(IconData icon, String title, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppColors.lightBlue,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, color: AppColors.primaryBlue, size: 20),
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        surfaceTintColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded, color: AppColors.darkNavy, size: 20),
+          onPressed: () => context.pop(),
         ),
-        const SizedBox(width: 16),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-            const SizedBox(height: 4),
-            Text(value, style: const TextStyle(color: AppColors.mutedText, fontSize: 14)),
-          ],
+        title: const Text('Contact Us', style: TextStyle(color: AppColors.darkNavy, fontWeight: FontWeight.bold, fontSize: 18)),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const PageHeroBanner(
+                tag: 'We\'d love to hear from you',
+                tagIcon: Icons.mail_outline_rounded,
+                title: 'Get in Touch',
+                subtitle: 'Send us a message and we\'ll respond as soon as possible.',
+                colors: [Color(0xFFEC4899), Color(0xFFF43F5E)],
+              ),
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SectionRow(title: 'Send a Message'),
+                    const SizedBox(height: 14),
+                    _MessageForm(),
+                    const SizedBox(height: 32),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-      ],
+      ),
     );
   }
 }
 
+
+class _MessageForm extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.cardBorder),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4))],
+      ),
+      child: Column(
+        children: [
+          Container(
+            height: 5,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(colors: [Color(0xFFEC4899), Color(0xFFF43F5E)]),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              children: [
+                AppTextField(label: 'Full Name', hint: 'Enter your name', prefixIcon: Icons.person_outline_rounded),
+                SizedBox(height: 16),
+                AppTextField(label: 'Email Address', hint: 'Enter your email', prefixIcon: Icons.email_outlined, keyboardType: TextInputType.emailAddress),
+                SizedBox(height: 16),
+                AppTextField(label: 'Message', hint: 'How can we help you?', maxLines: 4),
+                SizedBox(height: 20),
+                GradientButton(text: 'Send Message', onPressed: null),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

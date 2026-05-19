@@ -1,6 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:pathguide_app/core/data/models.dart';
+import 'package:pathguide_app/core/services/auth_api_service.dart';
+import 'package:pathguide_app/core/services/google_sign_in_service.dart';
+import 'package:pathguide_app/core/services/student_api_service.dart';
+import 'package:pathguide_app/core/services/token_storage.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -8,41 +12,59 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(AuthInitial()) {
     on<AppStarted>((event, emit) async {
-      emit(AuthUnauthenticated());
+      final token = await TokenStorage.getToken();
+      if (token == null) {
+        emit(AuthUnauthenticated());
+        return;
+      }
+      final role = await TokenStorage.getRole();
+      final userRole = role == 'recruiter' ? UserRole.recruiter : UserRole.student;
+      var user = UserModel(id: '', name: '', email: '', role: userRole);
+      if (userRole == UserRole.student) {
+        try {
+          user = await StudentApiService.getProfile(user);
+        } catch (_) {}
+      }
+      emit(AuthAuthenticated(user));
     });
 
     on<LoginRequested>((event, emit) async {
       emit(AuthLoading());
-      await Future.delayed(const Duration(seconds: 1));
-      
-      // Mock login logic: using the provided email to determine role, but keeping the name dynamic
-      final role = event.role == 'student' ? UserRole.student : UserRole.recruiter;
-      final name = event.email.split('@').first; // Just a simple mock name from email
-      
-      emit(AuthAuthenticated(UserModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(), 
-        name: name, 
-        email: event.email, 
-        role: role
-      )));
+      try {
+        var user = await AuthApiService.login(event.email, event.password, event.role);
+        if (user.role == UserRole.student) {
+          user = await StudentApiService.getProfile(user);
+        }
+        emit(AuthAuthenticated(user));
+      } catch (e) {
+        emit(AuthError(e.toString()));
+      }
     });
 
     on<RegisterRequested>((event, emit) async {
       emit(AuthLoading());
-      await Future.delayed(const Duration(seconds: 1));
-      emit(AuthAuthenticated(UserModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(), 
-        name: event.name, 
-        email: event.email, 
-        role: event.role,
-        phone: event.phone,
-        university: event.university,
-        major: event.major,
-        graduationYear: event.graduationYear,
-        careerPath: event.careerPath,
-        skills: event.skills ?? [],
-        interests: event.interests ?? [],
-      )));
+      try {
+        final UserModel user;
+        if (event.role == UserRole.recruiter) {
+          user = await AuthApiService.registerRecruiter(
+            name: event.name,
+            email: event.email,
+            password: event.password,
+            phone: event.phone,
+            companyName: event.companyName,
+          );
+        } else {
+          user = await AuthApiService.registerStudent(
+            name: event.name,
+            email: event.email,
+            password: event.password,
+            phone: event.phone,
+          );
+        }
+        emit(AuthAuthenticated(user));
+      } catch (e) {
+        emit(AuthError(e.toString()));
+      }
     });
 
     on<UserUpdateRequested>((event, emit) {
@@ -51,8 +73,33 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     });
 
-    on<LogoutRequested>((event, emit) {
+    on<GoogleSignInRequested>((event, emit) async {
+      emit(AuthLoading());
+      try {
+        final account = await GoogleSignInService.signIn();
+        if (account == null) {
+          emit(AuthUnauthenticated());
+          return;
+        }
+        final role = event.role == 'recruiter' ? UserRole.recruiter : UserRole.student;
+        emit(AuthAuthenticated(UserModel(
+          id: account.id,
+          name: account.displayName ?? account.email.split('@').first,
+          email: account.email,
+          role: role,
+        )));
+      } catch (e) {
+        emit(const AuthError('Google Sign-In failed. Please try again.'));
+      }
+    });
+
+    on<LogoutRequested>((event, emit) async {
+      await TokenStorage.clear();
       emit(AuthUnauthenticated());
+    });
+
+    on<MockSignIn>((event, emit) {
+      emit(AuthAuthenticated(event.user));
     });
   }
 }

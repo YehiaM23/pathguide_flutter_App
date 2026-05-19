@@ -30,131 +30,157 @@ class _StudentLoginPageState extends State<StudentLoginPage> {
           );
         }
       },
-      child: PageScaffold(
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white, size: 20),
+            onPressed: () => context.canPop() ? context.pop() : context.go('/'),
+          ),
+        ),
         body: Form(
           key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const PathGuideLogo(size: 48, showTagline: true),
-              const SizedBox(height: 48),
-              _buildHeader(),
-              const SizedBox(height: 32),
-              _buildLoginCard(context),
-              const SizedBox(height: 32),
-              _buildFooterLinks(context),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppColors.lightBlue,
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.school, color: AppColors.primaryBlue, size: 18),
-              SizedBox(width: 8),
-              Text(
-                'Student Portal',
-                style: TextStyle(color: AppColors.primaryBlue, fontWeight: FontWeight.bold, fontSize: 13),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20),
-        const SectionHeader(
-          title: 'Welcome Back',
-          subtitle: 'Sign in to continue your career journey',
-          centered: true,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLoginCard(BuildContext context) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AppTextField(
-            label: 'Email Address',
-            hint: 'Enter your email',
-            controller: _emailController,
-            keyboardType: TextInputType.emailAddress,
-            prefixIcon: Icons.email_outlined,
-            validator: (val) => val != null && val.contains('@') ? null : 'Enter a valid email',
-          ),
-          const SizedBox(height: 24),
-          AppTextField(
-            label: 'Password',
-            hint: 'Enter your password',
-            controller: _passwordController,
-            isPassword: true,
-            prefixIcon: Icons.lock_outline,
-            validator: (val) => val != null && val.length >= 6 ? null : 'Password must be at least 6 characters',
-          ),
-          const SizedBox(height: 32),
-          BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              return GradientButton(
-                text: 'Sign In',
-                isLoading: state is AuthLoading,
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    context.read<AuthBloc>().add(
-                          LoginRequested(_emailController.text, _passwordController.text, 'student'),
-                        );
-                  }
-                },
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFooterLinks(BuildContext context) {
-    return Column(
-      children: [
-        TextButton(
-          onPressed: () => context.push('/signup'),
-          child: RichText(
-            text: const TextSpan(
-              style: TextStyle(color: AppColors.mutedText, fontFamily: 'Poppins', fontSize: 15),
+          child: SingleChildScrollView(
+            child: Column(
               children: [
-                TextSpan(text: "Don't have an account? "),
-                TextSpan(
-                  text: "Sign Up", 
-                  style: TextStyle(color: AppColors.primaryBlue, fontWeight: FontWeight.bold),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(24, 100, 24, 44),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppColors.primaryBlue, AppColors.teal],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Welcome Back', style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 6),
+                      Text('Sign in to your account',
+                          style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 14)),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Transform.translate(
+                    offset: const Offset(0, -24),
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 20, offset: const Offset(0, 6))],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                height: 5,
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(colors: [AppColors.primaryBlue, AppColors.teal]),
+                                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(24),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text('Sign In', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: AppColors.darkNavy)),
+                                    const SizedBox(height: 4),
+                                    const Text('Enter your credentials to continue', style: TextStyle(color: AppColors.mutedText, fontSize: 13)),
+                                    const SizedBox(height: 24),
+                                    AppTextField(
+                                      label: 'Email Address',
+                                      hint: 'Enter your email',
+                                      controller: _emailController,
+                                      keyboardType: TextInputType.emailAddress,
+                                      prefixIcon: Icons.email_outlined,
+                                      validator: (val) => val != null && val.contains('@') ? null : 'Enter a valid email',
+                                    ),
+                                    const SizedBox(height: 16),
+                                    AppTextField(
+                                      label: 'Password',
+                                      hint: 'Enter your password',
+                                      controller: _passwordController,
+                                      isPassword: true,
+                                      prefixIcon: Icons.lock_outline,
+                                      validator: (val) => val != null && val.length >= 6 ? null : 'Password must be at least 6 characters',
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: TextButton(
+                                        onPressed: () => context.push('/forgot-password'),
+                                        child: const Text('Forgot Password?', style: TextStyle(color: AppColors.primaryBlue, fontSize: 12, fontWeight: FontWeight.w600)),
+                                      ),
+                                    ),
+                                    BlocBuilder<AuthBloc, AuthState>(
+                                      builder: (context, state) {
+                                        return GradientButton(
+                                          text: 'Sign In',
+                                          isLoading: state is AuthLoading,
+                                          onPressed: () {
+                                            if (_formKey.currentState!.validate()) {
+                                              context.read<AuthBloc>().add(
+                                                LoginRequested(_emailController.text, _passwordController.text, 'student'),
+                                              );
+                                            }
+                                          },
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(height: 20),
+                                    const OrDivider(),
+                                    const SizedBox(height: 20),
+                                    BlocBuilder<AuthBloc, AuthState>(
+                                      builder: (context, state) {
+                                        return GoogleSignInButton(
+                                          label: 'Continue with Google',
+                                          onPressed: state is AuthLoading
+                                              ? null
+                                              : () => context.read<AuthBloc>().add(const GoogleSignInRequested(role: 'student')),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        TextButton(
+                          onPressed: () => context.push('/signup'),
+                          child: RichText(
+                            text: const TextSpan(
+                              style: TextStyle(color: AppColors.mutedText, fontFamily: 'Poppins', fontSize: 14),
+                              children: [
+                                TextSpan(text: "Don't have an account? "),
+                                TextSpan(
+                                  text: "Sign Up",
+                                  style: TextStyle(color: AppColors.primaryBlue, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 12),
-        const Divider(color: AppColors.cardBorder, indent: 40, endIndent: 40),
-        const SizedBox(height: 12),
-        TextButton(
-          onPressed: () => context.push('/recruiter-login'),
-          child: const Text(
-            'Are you a recruiter? Switch to Recruiter Login',
-            style: TextStyle(color: AppColors.mutedText, fontSize: 14),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
-
-

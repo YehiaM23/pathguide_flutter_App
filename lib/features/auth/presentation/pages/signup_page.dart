@@ -15,129 +15,183 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   int _currentStep = 0;
-  String _selectedRole = 'Candidate'; // Candidate or Recruiter
+  String _selectedRole = 'Candidate';
   final _formKey1 = GlobalKey<FormState>();
   final _formKey2 = GlobalKey<FormState>();
 
-  // Controllers Step 1
+  // Common — Step 1
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _phoneController = TextEditingController();
-  
-  // Student Specific
-  String? _selectedUniversity;
-  String? _selectedMajor;
-  final _gradYearController = TextEditingController();
-  bool? _hasSpecificPath;
-  String? _selectedCareerPath;
+  final _ageController = TextEditingController();
+  String? _selectedGender;
 
-  // Recruiter Specific
+  // Recruiter — Step 2
+  final _recruiterLinkedinController = TextEditingController();
+  final _recruiterRoleController = TextEditingController();
+  final _yearsOfExperienceController = TextEditingController();
   final _companyNameController = TextEditingController();
+  final _companyAddressController = TextEditingController();
+  final _companyPhoneController = TextEditingController();
+  final _companyFoundedYearController = TextEditingController();
   final _companyWebsiteController = TextEditingController();
-  final _companyIndustryController = TextEditingController();
-  final _companyLocationController = TextEditingController();
+  final _companyLinkedinController = TextEditingController();
   final _companyDescriptionController = TextEditingController();
 
-  final List<String> _skills = [
-    'Adobe XD', 'Angular', 'AWS', 'CSS', 'Docker', 'Excel', 'Express', 'Figma',
-    'Flutter', 'Git', 'HTML', 'Java', 'JavaScript', 'JUnit', 'Kotlin', 'Kubernetes',
-    'MongoDB', 'NumPy', 'Pandas', 'PostgreSQL', 'Power BI', 'Python', 'PyTorch',
-    'R', 'React', 'React Native', 'REST APIs', 'Sass', 'Selenium', 'SQL', 'Swift',
-    'Tableau', 'TensorFlow', 'TestNG', 'TypeScript', 'Vue.js'
-  ];
-
-  final List<String> _selectedSkills = [];
-
-  final List<String> _interests = [
-    'AI & Machine Learning', 'Anime', 'Audiobooks', 'Basketball', 'Beach', 'Blogging',
-    'Building Apps', 'Business Strategy', 'Camping','Community Service',
-    'Content Creation', 'Cooking', 'Cycling', 'Digital Art', 'Drawing', 'Entrepreneurship',
-    'Fashion', 'Football', 'Freelancing', 'Gadgets', 'Gaming', 'Graphic Design',
-    'Gym & Fitness', 'Hiking', 'Investing', 'Leadership', 'Learning Languages',
-    'Marketing', 'Martial Arts', 'Mentoring', 'Movies', 'Music', 'Music Concerts',
-    'Nature', 'Networking', 'Online Courses', 'Open Source', 'Personal Finance',
-    'Photography', 'Playing Instruments', 'Podcasts', 'Programming', 'Public Speaking',
-    'Reading', 'Road Trips', 'Running', 'Self Improvement',
-    'Startups', 'Swimming', 'Teaching', 'Tech News', 'Theatre', 'Traveling',
-    'TV Series', 'Video Editing', 'Volunteering', 'Writing'
-  ];
-
-  final List<String> _selectedInterests = [];
-
-  final List<String> _egyptianUniversities = [
-    'Cairo University','Nile University', 'Ain Shams University', 'Alexandria University', 
-    'Mansoura University', 'Helwan University', 'Assiut University', 
-    'Tanta University', 'Zagazig University', 'Suez Canal University', 
-    'Menoufia University', 'Benha University', 'Minia University', 
-    'Fayoum University', 'Beni-Suef University', 'Sohag University', 
-    'South Valley University', 'Aswan University', 'Port Said University', 
-    'Damietta University', 'Suez University', 'Damanhour University', 
-    'Kafr El-Sheikh University', 'Matrouh University', 'New Valley University', 
-    'Al-Azhar University','American University in Cairo (AUC)', 
-    'German University in Cairo (GUC)', 'British University in Egypt (BUE)', 
-    'Arab Academy for Science, Technology and Maritime Transport (AASTMT)',
-    'Misr International University (MIU)', 'Future University in Egypt (FUE)',
-    'Misr University for Science and Technology (MUST)', 'Modern Sciences and Arts University (MSA)',
-    'October 6 University', 'Galala University', 'AlAlamein International University',
-    'New Mansoura University', 'King Salman International University'
-  ];
-
-  final List<String> _csMajors = [
-    'Computer Science', 'AI', 'Biotechnology', 
-    'Software Engineering', 'Information Technology', 'Information Systems', 
-    'Cybersecurity', 'Data Science', 'Computer Engineering'
-  ];
-
-  final List<String> _allCareers = [
-    'Software Engineer', 'Full-Stack Developer', 'Backend Developer', 
-    'Frontend Developer', 'Mobile Developer', 'Data Scientist', 
-    'AI / Machine Learning Engineer', 'Cybersecurity Analyst', 
-    'Cloud Engineer', 'DevOps Engineer', 'UI/UX Designer', 
-    'Game Developer', 'Embedded Systems Engineer', 'Data Engineer',
-    'Blockchain Developer', 'Network Engineer'
-  ];
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _phoneController.dispose();
+    _ageController.dispose();
+    _recruiterLinkedinController.dispose();
+    _recruiterRoleController.dispose();
+    _yearsOfExperienceController.dispose();
+    _companyNameController.dispose();
+    _companyAddressController.dispose();
+    _companyPhoneController.dispose();
+    _companyFoundedYearController.dispose();
+    _companyWebsiteController.dispose();
+    _companyLinkedinController.dispose();
+    _companyDescriptionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return PageScaffold(
-      title: 'Create Account',
-      body: Column(
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white, size: 20),
+          onPressed: () => context.pop(),
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildHeroHeader(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  // Step indicator only for recruiter (2 steps)
+                  if (_selectedRole == 'Recruiter')
+                    Transform.translate(
+                      offset: const Offset(0, -28),
+                      child: _buildRecruiterStepIndicator(),
+                    )
+                  else
+                    const SizedBox(height: 20),
+                  _buildCurrentStep(),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () => context.push('/student-login'),
+                    child: RichText(
+                      text: const TextSpan(
+                        style: TextStyle(color: AppColors.mutedText, fontFamily: 'Poppins', fontSize: 14),
+                        children: [
+                          TextSpan(text: 'Already have an account? '),
+                          TextSpan(
+                            text: 'Sign In',
+                            style: TextStyle(color: AppColors.primaryBlue, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─── Hero header ────────────────────────────────────────────────────────────
+
+  Widget _buildHeroHeader() {
+    final List<Color> colors;
+    final String title;
+    final String subtitle;
+
+    if (_selectedRole == 'Candidate' || _currentStep == 0) {
+      colors = [AppColors.primaryBlue, AppColors.teal];
+      title = 'Create Account';
+      subtitle = 'Join PathGuide to start your career journey';
+    } else {
+      colors = [const Color(0xFF6366F1), const Color(0xFF8B5CF6)];
+      title = 'Company Profile';
+      subtitle = 'Complete your recruiter and company details';
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(24, 100, 24, 52),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: colors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStepIndicator(),
-          const SizedBox(height: 40),
-          _buildCurrentStep(),
+          if (_selectedRole == 'Recruiter')
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+              ),
+              child: Text(
+                'Step ${_currentStep + 1} of 2',
+                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+              ),
+            ),
+          if (_selectedRole == 'Recruiter') const SizedBox(height: 14),
+          Text(title, style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 6),
+          Text(subtitle, style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 13)),
         ],
       ),
     );
   }
 
-  Widget _buildCurrentStep() {
-    if (_currentStep == 0) return _buildStep1();
-    if (_currentStep == 1) return _buildStep2();
-    return _buildStep3();
-  }
+  // ─── Recruiter 2-step indicator ─────────────────────────────────────────────
 
-  Widget _buildStepIndicator() {
-    return Row(
-      children: [
-        Expanded(child: _indicatorItem(1, 'Account', _currentStep >= 0)),
-        _indicatorLine(_currentStep >= 1),
-        Expanded(child: _indicatorItem(2, 'Profile', _currentStep >= 1)),
-        if (_selectedRole == 'Candidate') ...[
-          _indicatorLine(_currentStep >= 2),
-          Expanded(child: _indicatorItem(3, 'Career', _currentStep >= 2)),
+  Widget _buildRecruiterStepIndicator() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 16, offset: const Offset(0, 4))],
+      ),
+      child: Row(
+        children: [
+          Expanded(child: _indicatorItem(1, 'Account', _currentStep >= 0)),
+          _indicatorLine(_currentStep >= 1),
+          Expanded(child: _indicatorItem(2, 'Company', _currentStep >= 1)),
         ],
-      ],
+      ),
     );
   }
 
   Widget _indicatorLine(bool isActive) {
     return Container(
-      width: 20, 
-      height: 2, 
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      color: isActive ? AppColors.primaryBlue : AppColors.cardBorder
+      width: 30,
+      height: 2,
+      decoration: BoxDecoration(
+        gradient: isActive ? const LinearGradient(colors: [AppColors.primaryBlue, AppColors.teal]) : null,
+        color: isActive ? null : AppColors.cardBorder,
+        borderRadius: BorderRadius.circular(2),
+      ),
     );
   }
 
@@ -145,19 +199,16 @@ class _SignupPageState extends State<SignupPage> {
     return Column(
       children: [
         Container(
-          width: 36,
-          height: 36,
+          width: 38,
+          height: 38,
           decoration: BoxDecoration(
-            color: isActive ? AppColors.primaryBlue : Colors.white,
+            gradient: isActive ? const LinearGradient(colors: [AppColors.primaryBlue, AppColors.teal]) : null,
+            color: isActive ? null : Colors.white,
             shape: BoxShape.circle,
-            border: Border.all(color: isActive ? AppColors.primaryBlue : AppColors.cardBorder, width: 2),
-            boxShadow: isActive ? [
-              BoxShadow(
-                color: AppColors.primaryBlue.withValues(alpha: 0.2),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              )
-            ] : null,
+            border: Border.all(color: isActive ? Colors.transparent : AppColors.cardBorder, width: 2),
+            boxShadow: isActive
+                ? [BoxShadow(color: AppColors.primaryBlue.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))]
+                : null,
           ),
           child: Center(
             child: Text(
@@ -165,25 +216,33 @@ class _SignupPageState extends State<SignupPage> {
               style: TextStyle(
                 color: isActive ? Colors.white : AppColors.mutedText,
                 fontWeight: FontWeight.bold,
+                fontSize: 14,
               ),
             ),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Text(
           label,
           textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: isActive ? AppColors.darkNavy : AppColors.mutedText,
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
           ),
         ),
       ],
     );
   }
+
+  // ─── Step routing ────────────────────────────────────────────────────────────
+
+  Widget _buildCurrentStep() {
+    if (_currentStep == 1) return _buildRecruiterStep2();
+    return _buildStep1();
+  }
+
+  // ─── Step 1 — shared (Account info) ─────────────────────────────────────────
 
   Widget _buildStep1() {
     return Form(
@@ -206,12 +265,12 @@ class _SignupPageState extends State<SignupPage> {
             const SizedBox(height: 16),
             AppTextField(
               label: 'Full Name',
-              hint: 'your name',
+              hint: 'Your full name',
               controller: _nameController,
               prefixIcon: Icons.person_outline,
-              validator: (v) => v!.isEmpty ? 'Please enter your name' : null,
+              validator: (v) => v!.trim().isEmpty ? 'Please enter your name' : null,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             AppTextField(
               label: 'Phone Number',
               hint: '+20 123 456 7890',
@@ -219,7 +278,28 @@ class _SignupPageState extends State<SignupPage> {
               keyboardType: TextInputType.phone,
               prefixIcon: Icons.phone_outlined,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+            const Text(
+              'Gender',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.darkNavy),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(child: _genderOption('Male', Icons.male_rounded)),
+                const SizedBox(width: 12),
+                Expanded(child: _genderOption('Female', Icons.female_rounded)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            AppTextField(
+              label: 'Age',
+              hint: 'Enter your age',
+              controller: _ageController,
+              keyboardType: TextInputType.number,
+              prefixIcon: Icons.cake_outlined,
+            ),
+            const SizedBox(height: 16),
             AppTextField(
               label: 'Email Address',
               hint: 'name@example.com',
@@ -228,7 +308,7 @@ class _SignupPageState extends State<SignupPage> {
               prefixIcon: Icons.email_outlined,
               validator: (v) => v!.contains('@') ? null : 'Invalid email address',
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             AppTextField(
               label: 'Password',
               hint: 'Create a password',
@@ -238,43 +318,38 @@ class _SignupPageState extends State<SignupPage> {
               validator: (v) => v!.length < 6 ? 'Password must be at least 6 characters' : null,
             ),
             const SizedBox(height: 32),
-            if (_selectedRole == 'Candidate') ...[
-              const Text(
-                'Education',
-                style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkNavy, fontSize: 16),
-              ),
-              const SizedBox(height: 16),
-              _buildDropdown('University', 'Select University', _egyptianUniversities, (v) => setState(() => _selectedUniversity = v)),
-              const SizedBox(height: 20),
-              _buildDropdown('Major', 'Select Major', _csMajors, (v) => setState(() => _selectedMajor = v)),
-              const SizedBox(height: 20),
-              AppTextField(
-                label: 'Graduation Year',
-                hint: '2025',
-                controller: _gradYearController,
-                keyboardType: TextInputType.number,
-                prefixIcon: Icons.calendar_today_outlined,
-              ),
-            ] else ...[
-              const Text(
-                'Company Info',
-                style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkNavy, fontSize: 16),
-              ),
-              const SizedBox(height: 16),
-              AppTextField(
-                label: 'Company Name',
-                hint: 'e.g. Tech Solutions Inc.',
-                controller: _companyNameController,
-                prefixIcon: Icons.business_outlined,
-              ),
-            ],
-            const SizedBox(height: 40),
-            GradientButton(
-              text: 'Continue',
-              onPressed: () {
-                if (_formKey1.currentState!.validate()) {
-                  setState(() => _currentStep = 1);
-                }
+            BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                return GradientButton(
+                  text: _selectedRole == 'Candidate' ? 'Create Account' : 'Next',
+                  isLoading: state is AuthLoading,
+                  onPressed: () {
+                    if (_formKey1.currentState!.validate()) {
+                      if (_selectedRole == 'Candidate') {
+                        _createCandidateAccount();
+                      } else {
+                        setState(() => _currentStep = 1);
+                      }
+                    }
+                  },
+                );
+              },
+            ),
+            const SizedBox(height: 20),
+            const OrDivider(),
+            const SizedBox(height: 20),
+            BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                return GoogleSignInButton(
+                  label: 'Sign up with Google',
+                  onPressed: state is AuthLoading
+                      ? null
+                      : () => context.read<AuthBloc>().add(
+                            GoogleSignInRequested(
+                              role: _selectedRole == 'Recruiter' ? 'recruiter' : 'student',
+                            ),
+                          ),
+                );
               },
             ),
           ],
@@ -282,6 +357,173 @@ class _SignupPageState extends State<SignupPage> {
       ),
     );
   }
+
+  void _createCandidateAccount() {
+    context.read<AuthBloc>().add(MockSignIn(UserModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      role: UserRole.student,
+      phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
+      gender: _selectedGender,
+      age: _ageController.text.trim().isEmpty ? null : _ageController.text.trim(),
+    )));
+    context.go('/student/dashboard');
+  }
+
+  // ─── Recruiter Step 2 — Company & Recruiter info ─────────────────────────────
+
+  Widget _buildRecruiterStep2() {
+    return Form(
+      key: _formKey2,
+      child: AppCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SectionHeader(
+              title: 'Professional Profile',
+              subtitle: 'Complete your recruiter and company details',
+            ),
+            const SizedBox(height: 32),
+            const Text(
+              'Recruiter Info',
+              style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkNavy, fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            AppTextField(
+              label: 'LinkedIn',
+              hint: 'https://linkedin.com/in/username',
+              controller: _recruiterLinkedinController,
+              prefixIcon: Icons.link,
+            ),
+            const SizedBox(height: 16),
+            AppTextField(
+              label: 'Your Role',
+              hint: 'e.g. HR Manager, Talent Acquisition',
+              controller: _recruiterRoleController,
+              prefixIcon: Icons.badge_outlined,
+            ),
+            const SizedBox(height: 16),
+            AppTextField(
+              label: 'Years of Experience',
+              hint: 'Enter years of experience',
+              controller: _yearsOfExperienceController,
+              keyboardType: TextInputType.number,
+              prefixIcon: Icons.work_history_outlined,
+            ),
+            const SizedBox(height: 32),
+            const Text(
+              'Company Info',
+              style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkNavy, fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            AppTextField(
+              label: 'Company Name',
+              hint: 'Enter company name',
+              controller: _companyNameController,
+              prefixIcon: Icons.business_outlined,
+            ),
+            const SizedBox(height: 16),
+            AppTextField(
+              label: 'Address',
+              hint: 'Enter company address',
+              controller: _companyAddressController,
+              prefixIcon: Icons.location_on_outlined,
+            ),
+            const SizedBox(height: 16),
+            AppTextField(
+              label: 'Phone Number',
+              hint: 'Enter company phone number',
+              controller: _companyPhoneController,
+              keyboardType: TextInputType.phone,
+              prefixIcon: Icons.phone_outlined,
+            ),
+            const SizedBox(height: 16),
+            AppTextField(
+              label: 'Founded Year',
+              hint: 'Enter founded year',
+              controller: _companyFoundedYearController,
+              keyboardType: TextInputType.number,
+              prefixIcon: Icons.calendar_today_outlined,
+            ),
+            const SizedBox(height: 16),
+            AppTextField(
+              label: 'Website',
+              hint: 'https://www.company.com',
+              controller: _companyWebsiteController,
+              prefixIcon: Icons.language,
+            ),
+            const SizedBox(height: 16),
+            AppTextField(
+              label: 'Company LinkedIn',
+              hint: 'https://linkedin.com/company/name',
+              controller: _companyLinkedinController,
+              prefixIcon: Icons.link,
+            ),
+            const SizedBox(height: 16),
+            AppTextField(
+              label: 'Bio',
+              hint: 'Describe your company culture and mission...',
+              controller: _companyDescriptionController,
+              maxLines: 4,
+            ),
+            const SizedBox(height: 48),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => setState(() => _currentStep = 0),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text('Back'),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) {
+                      return GradientButton(
+                        text: 'Create Account',
+                        isLoading: state is AuthLoading,
+                        onPressed: () {
+                          if (_formKey2.currentState!.validate()) {
+                            context.read<AuthBloc>().add(MockSignIn(UserModel(
+                              id: DateTime.now().millisecondsSinceEpoch.toString(),
+                              name: _nameController.text.trim(),
+                              email: _emailController.text.trim(),
+                              role: UserRole.recruiter,
+                              phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
+                              gender: _selectedGender,
+                              age: _ageController.text.trim().isEmpty ? null : _ageController.text.trim(),
+                              linkedinUrl: _recruiterLinkedinController.text.trim().isEmpty ? null : _recruiterLinkedinController.text.trim(),
+                              recruiterRole: _recruiterRoleController.text.trim().isEmpty ? null : _recruiterRoleController.text.trim(),
+                              yearsOfExperience: _yearsOfExperienceController.text.trim().isEmpty ? null : _yearsOfExperienceController.text.trim(),
+                              companyName: _companyNameController.text.trim().isEmpty ? null : _companyNameController.text.trim(),
+                              companyAddress: _companyAddressController.text.trim().isEmpty ? null : _companyAddressController.text.trim(),
+                              companyPhone: _companyPhoneController.text.trim().isEmpty ? null : _companyPhoneController.text.trim(),
+                              companyFoundedYear: _companyFoundedYearController.text.trim().isEmpty ? null : _companyFoundedYearController.text.trim(),
+                              companyWebsite: _companyWebsiteController.text.trim().isEmpty ? null : _companyWebsiteController.text.trim(),
+                              companyLinkedin: _companyLinkedinController.text.trim().isEmpty ? null : _companyLinkedinController.text.trim(),
+                              bio: _companyDescriptionController.text.trim().isEmpty ? null : _companyDescriptionController.text.trim(),
+                            )));
+                            context.go('/recruiter/dashboard');
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─── Shared widgets ──────────────────────────────────────────────────────────
 
   Widget _buildRoleSelector() {
     return Row(
@@ -294,9 +536,12 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   Widget _roleOption(String role, IconData icon) {
-    bool isSelected = _selectedRole == role;
+    final isSelected = _selectedRole == role;
     return GestureDetector(
-      onTap: () => setState(() => _selectedRole = role),
+      onTap: () => setState(() {
+        _selectedRole = role;
+        _currentStep = 0;
+      }),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -304,7 +549,7 @@ class _SignupPageState extends State<SignupPage> {
           color: isSelected ? AppColors.primaryBlue.withValues(alpha: 0.05) : Colors.white,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: isSelected ? AppColors.primaryBlue : AppColors.cardBorder, 
+            color: isSelected ? AppColors.primaryBlue : AppColors.cardBorder,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -326,391 +571,36 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  Widget _buildDropdown(String label, String hint, List<String> items, Function(String?) onChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.darkNavy)),
-        const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          isExpanded: true,
-          decoration: InputDecoration(
-            hintText: hint,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          ),
-          items: items.map((e) => DropdownMenuItem(
-            value: e, 
-            child: Text(
-              e,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            )
-          )).toList(),
-          onChanged: onChanged,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStep2() {
-    return Form(
-      key: _formKey2,
-      child: AppCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SectionHeader(
-              title: 'Professional Profile',
-              subtitle: _selectedRole == 'Candidate' 
-                  ? 'Tell us more about your skills and interests'
-                  : 'Tell us more about your company',
-            ),
-            const SizedBox(height: 32),
-            const Text(
-              'Online Presence',
-              style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkNavy, fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            const AppTextField(
-              label: 'LinkedIn Profile', 
-              hint: 'https://linkedin.com/in/username',
-              prefixIcon: Icons.link,
-            ),
-            const SizedBox(height: 20),
-            if (_selectedRole == 'Candidate') ...[
-              const AppTextField(
-                label: 'GitHub Profile', 
-                hint: 'https://github.com/username',
-                prefixIcon: Icons.code,
-              ),
-              const SizedBox(height: 32),
-              _buildChipSection(
-                'Technical Skills', 
-                'Select your top skills', 
-                _skills, 
-                _selectedSkills,
-                () => _showAddSelectionDialog('Skill', _skills, _selectedSkills),
-              ),
-              const SizedBox(height: 32),
-              _buildChipSection(
-                'Interests', 
-                'What drives you?', 
-                _interests, 
-                _selectedInterests,
-                () => _showAddSelectionDialog('Interest', _interests, _selectedInterests),
-              ),
-            ] else ...[
-              AppTextField(
-                label: 'Company Website', 
-                hint: 'https://www.company.com',
-                controller: _companyWebsiteController,
-                prefixIcon: Icons.language,
-              ),
-              const SizedBox(height: 32),
-              const Text(
-                'Business Details',
-                style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkNavy, fontSize: 16),
-              ),
-              const SizedBox(height: 16),
-              AppTextField(
-                label: 'Industry',
-                hint: 'e.g. Software Development',
-                controller: _companyIndustryController,
-              ),
-              const SizedBox(height: 20),
-              AppTextField(
-                label: 'HQ Location',
-                hint: 'e.g. Cairo, Egypt',
-                controller: _companyLocationController,
-                prefixIcon: Icons.location_on_outlined,
-              ),
-              const SizedBox(height: 20),
-              AppTextField(
-                label: 'Company Bio',
-                hint: 'Describe your company culture and mission...',
-                controller: _companyDescriptionController,
-                maxLines: 4,
-              ),
-            ],
-
-            const SizedBox(height: 48),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => setState(() => _currentStep = 0),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: const Text('Back'),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      return GradientButton(
-                        text: _selectedRole == 'Candidate' ? 'Next' : 'Finish Setup',
-                        isLoading: state is AuthLoading,
-                        onPressed: () {
-                          if (_formKey2.currentState!.validate()) {
-                            if (_selectedRole == 'Candidate') {
-                              setState(() => _currentStep = 2);
-                            } else {
-                              context.read<AuthBloc>().add(RegisterRequested(
-                                name: _nameController.text,
-                                email: _emailController.text,
-                                password: _passwordController.text,
-                                role: UserRole.recruiter,
-                                phone: _phoneController.text,
-                                companyName: _companyNameController.text,
-                                companyWebsite: _companyWebsiteController.text,
-                                companyIndustry: _companyIndustryController.text,
-                                companyLocation: _companyLocationController.text,
-                                companyDescription: _companyDescriptionController.text,
-                              ));
-                              context.go('/recruiter/dashboard');
-                            }
-                          }
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStep3() {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SectionHeader(
-            title: 'Career Direction',
-            subtitle: 'Let\'s define your professional path',
-          ),
-          const SizedBox(height: 32),
-          const Text(
-            'Do you have a specific career path in mind?',
-            style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkNavy, fontSize: 16),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _choiceOption('Yes', _hasSpecificPath == true, () => setState(() => _hasSpecificPath = true)),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _choiceOption('No, Recommend', _hasSpecificPath == false, () => setState(() => _hasSpecificPath = false)),
-              ),
-            ],
-          ),
-          if (_hasSpecificPath == true) ...[
-            const SizedBox(height: 32),
-            _buildDropdown('Desired Career Path', 'Select Path', _allCareers, (v) => setState(() => _selectedCareerPath = v)),
-          ],
-          if (_hasSpecificPath == false) ...[
-            const SizedBox(height: 32),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.primaryBlue.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.1)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-              Row(
-                children: [
-                  const Icon(Icons.auto_awesome, color: AppColors.primaryBlue, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'System Recommendation', 
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryBlue),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Based on your skills and interests, we recommend focusing on:',
-                    style: TextStyle(fontSize: 14, color: AppColors.darkNavy),
-                    softWrap: true,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _getRecommendedPath(),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.primaryBlue),
-                    softWrap: true,
-                  ),
-                ],
-              ),
-            ),
-          ],
-          const SizedBox(height: 48),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => setState(() => _currentStep = 1),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: const Text('Back'),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    return GradientButton(
-                      text: 'Finish Setup',
-                      isLoading: state is AuthLoading,
-                      onPressed: (_hasSpecificPath == null || (_hasSpecificPath == true && _selectedCareerPath == null)) 
-                          ? null 
-                          : () {
-                        context.read<AuthBloc>().add(RegisterRequested(
-                          name: _nameController.text,
-                          email: _emailController.text,
-                          password: _passwordController.text,
-                          role: UserRole.student,
-                          phone: _phoneController.text,
-                          university: _selectedUniversity,
-                          major: _selectedMajor,
-                          graduationYear: _gradYearController.text,
-                          careerPath: _hasSpecificPath == true ? _selectedCareerPath : _getRecommendedPath(),
-                          skills: _selectedSkills,
-                          interests: _selectedInterests,
-                        ));
-                        context.go('/student/dashboard');
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getRecommendedPath() {
-    if (_selectedSkills.contains('Flutter') || _selectedSkills.contains('React Native')) {
-      return 'Mobile Developer';
-    } else if (_selectedSkills.contains('Python') || _selectedInterests.contains('AI & Machine Learning')) {
-      return 'Data Scientist';
-    } else if (_selectedSkills.contains('Figma') || _selectedSkills.contains('Adobe XD')) {
-      return 'UI/UX Designer';
-    }
-    return 'Full-Stack Developer';
-  }
-
-  Widget _choiceOption(String text, bool isSelected, VoidCallback onTap) {
+  Widget _genderOption(String gender, IconData icon) {
+    final isSelected = _selectedGender == gender;
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+      onTap: () => setState(() => _selectedGender = gender),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryBlue : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? AppColors.primaryBlue : AppColors.cardBorder),
-        ),
-        child: Center(
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: isSelected ? Colors.white : AppColors.mutedText,
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-            ),
+          color: isSelected ? AppColors.primaryBlue.withValues(alpha: 0.05) : Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            color: isSelected ? AppColors.primaryBlue : AppColors.cardBorder,
+            width: isSelected ? 2 : 1,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildChipSection(String title, String subtitle, List<String> masterList, List<String> selectedList, VoidCallback onAdd) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkNavy, fontSize: 16)),
-                  Text(subtitle, style: const TextStyle(color: AppColors.mutedText, fontSize: 13)),
-                ],
+            Icon(icon, color: isSelected ? AppColors.primaryBlue : AppColors.mutedText, size: 26),
+            const SizedBox(height: 6),
+            Text(
+              gender,
+              style: TextStyle(
+                color: isSelected ? AppColors.primaryBlue : AppColors.mutedText,
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
               ),
-            ),
-            IconButton(
-              onPressed: onAdd,
-              icon: const Icon(Icons.add_circle_outline, color: AppColors.primaryBlue),
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        if (selectedList.isEmpty)
-          const Text('None selected yet', style: TextStyle(color: AppColors.mutedText, fontSize: 13, fontStyle: FontStyle.italic))
-        else
-          Wrap(
-            spacing: 8,
-            runSpacing: 10,
-            children: selectedList.map((item) => SkillChip(
-              label: item,
-              isSelected: true,
-              onTap: () => setState(() => selectedList.remove(item)),
-            )).toList(),
-          ),
-      ],
-    );
-  }
-
-  void _showAddSelectionDialog(String title, List<String> masterList, List<String> selectedList) {
-    final available = masterList.where((item) => !selectedList.contains(item)).toList();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Select $title'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: available.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(available[index]),
-                onTap: () {
-                  setState(() => selectedList.add(available[index]));
-                  Navigator.pop(context);
-                },
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
-        ],
       ),
     );
   }
-
-
 }
-
-

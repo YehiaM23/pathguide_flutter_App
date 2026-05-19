@@ -3,10 +3,12 @@ import '../features/landing/presentation/pages/home_page.dart';
 import '../features/about/presentation/pages/about_page.dart';
 import '../features/contact/presentation/pages/contact_page.dart';
 import '../features/auth/presentation/pages/student_login_page.dart';
-import '../features/auth/presentation/pages/recruiter_login_page.dart';
+import '../features/auth/presentation/pages/forgot_password_page.dart';
+import '../features/auth/presentation/pages/reset_password_page.dart';
 import '../features/auth/presentation/pages/signup_page.dart';
 import '../features/student/dashboard/presentation/pages/student_dashboard.dart';
 import '../features/student/profile/presentation/pages/student_profile_page.dart';
+import '../features/student/profile/presentation/pages/student_profile_view_page.dart';
 import '../features/student/career_path/presentation/pages/career_path_planner_page.dart';
 import '../features/student/internships/presentation/pages/student_internships_page.dart';
 import '../features/student/internships/presentation/pages/internship_details_page.dart';
@@ -14,6 +16,7 @@ import '../features/student/applications/presentation/pages/student_applications
 import '../features/recruiter/dashboard/presentation/pages/recruiter_dashboard.dart';
 import '../features/recruiter/internships/presentation/pages/my_internships_page.dart';
 import '../features/recruiter/internships/presentation/pages/post_internship_page.dart';
+import '../core/data/models.dart';
 import '../features/recruiter/applications/presentation/pages/all_applications_page.dart';
 import '../features/recruiter/profile/presentation/pages/recruiter_profile_page.dart';
 import '../features/notifications/presentation/pages/notifications_page.dart';
@@ -30,13 +33,15 @@ class AppRouter {
       GoRoute(path: '/about', builder: (context, state) => const AboutPage()),
       GoRoute(path: '/contact', builder: (context, state) => const ContactPage()),
       GoRoute(path: '/student-login', builder: (context, state) => const StudentLoginPage()),
-      GoRoute(path: '/recruiter-login', builder: (context, state) => const RecruiterLoginPage()),
       GoRoute(path: '/signup', builder: (context, state) => const SignupPage()),
+      GoRoute(path: '/forgot-password', builder: (context, state) => const ForgotPasswordPage()),
+      GoRoute(path: '/reset-password', builder: (context, state) => const ResetPasswordPage()),
       GoRoute(path: '/notifications', builder: (context, state) => const NotificationsPage()),
       
       // Student Routes
       GoRoute(path: '/student/dashboard', builder: (context, state) => const StudentDashboard()),
-      GoRoute(path: '/student/profile', builder: (context, state) => const StudentProfilePage()),
+      GoRoute(path: '/student/profile', builder: (context, state) => const StudentProfileViewPage()),
+      GoRoute(path: '/student/edit-profile', builder: (context, state) => const StudentProfilePage()),
       GoRoute(path: '/student/career-path', builder: (context, state) => const CareerPathPlannerPage()),
       GoRoute(path: '/student/internships', builder: (context, state) => const StudentInternshipsPage()),
       GoRoute(path: '/student/internship-details', builder: (context, state) => const InternshipDetailsPage()),
@@ -46,7 +51,7 @@ class AppRouter {
       GoRoute(path: '/recruiter/dashboard', builder: (context, state) => const RecruiterDashboard()),
       GoRoute(path: '/recruiter/profile', builder: (context, state) => const RecruiterProfilePage()),
       GoRoute(path: '/recruiter/my-internships', builder: (context, state) => const MyInternshipsPage()),
-      GoRoute(path: '/recruiter/post-internship', builder: (context, state) => const PostInternshipPage()),
+      GoRoute(path: '/recruiter/post-internship', builder: (context, state) => PostInternshipPage(editInternship: state.extra as InternshipModel?)),
       GoRoute(path: '/recruiter/applications', builder: (context, state) => const AllApplicationsPage()),
       
       // Legal Routes
